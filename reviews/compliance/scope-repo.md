@@ -4,4 +4,5 @@ Inspect repository source, tests, configuration, and documentation only as neede
 
 Report a finding only when repository evidence conflicts with an exact permanent policy ID. Do not add obligations from generic engineering practice.
 
-Do not inspect review infrastructure. Use only the documented submission command.
+Do not inspect review infrastructure.
+Use only the documented submission command.

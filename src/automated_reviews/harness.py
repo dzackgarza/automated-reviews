@@ -236,9 +236,7 @@ def build_compliance_prompt(
         sections.append(diff_prompt_section(repo_root))
     sections.append(f"## Governing Policy Document: {policy_document}\n\n{policy.read_text()}")
     sections.append(
-        scope_path.read_text()
-        + "\n\nSubmit only violations of an exact policy ID defined in the governing policy document.\n"
-        "Otherwise, submit an empty findings array."
+        scope_path.read_text() + "\n\nSubmit only violations of an exact policy ID defined in the governing policy document.\nOtherwise, submit an empty findings array."
     )
     return "\n\n".join(sections)
 

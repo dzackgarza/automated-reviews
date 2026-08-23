@@ -456,9 +456,7 @@ class ComplianceFinding(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    tier: Literal["tier1", "tier2"] = Field(
-        description="tier1: definite policy violation. tier2: credible violation that needs human judgment."
-    )
+    tier: Literal["tier1", "tier2"] = Field(description="tier1: definite policy violation. tier2: credible violation that needs human judgment.")
     label: Literal["POLICY VIOLATION", "POLICY SUSPECT"]
     category: str = Field(description="Short policy area, such as category-ownership or testing.")
     policy_code: str = Field(description="Exact permanent ID copied from the supplied policy document.")
@@ -473,8 +471,7 @@ class ComplianceFinding(BaseModel):
         policy_ids = info.context.get("policy_ids") if info.context else None
         if not isinstance(policy_ids, frozenset) or self.policy_code not in policy_ids:
             raise ValueError(
-                f"REJECTED: policy code '{self.policy_code}' is not defined by the supplied policy document. "
-                "FIX: copy an exact permanent policy ID from that document."
+                f"REJECTED: policy code '{self.policy_code}' is not defined by the supplied policy document. FIX: copy an exact permanent policy ID from that document."
             )
         return self
 

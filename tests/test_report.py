@@ -60,9 +60,7 @@ def test_empty_report_metadata_and_status(tmp_path: pathlib.Path, checkout: path
     enforce_report_status(artifact)
 
 
-def test_compliance_validation_reads_allowed_ids_from_policy_document(
-    tmp_path: pathlib.Path, checkout: pathlib.Path
-) -> None:
+def test_compliance_validation_reads_allowed_ids_from_policy_document(tmp_path: pathlib.Path, checkout: pathlib.Path) -> None:
     policy = tmp_path / "CONTRIBUTING.md"
     policy.write_text("| `POL-CAT-001` | Categories own constructors. |\n")
     candidate = tmp_path / "candidate.json"

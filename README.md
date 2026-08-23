@@ -1,6 +1,7 @@
 # automated-reviews
 
-`automated-reviews` runs slop reviews and repository-defined policy-compliance reviews. It also replays captured CI environments locally.
+`automated-reviews` runs slop reviews and repository-defined policy-compliance reviews.
+It also replays captured CI environments locally.
 It publishes reusable GitHub workflows and keeps the active reviewer model in one metadata file.
 
 Use a frozen case to compare slop-review behavior against the same repository, prompt, tools, and context.
@@ -103,9 +104,12 @@ Create a pull-request workflow that reviews the target repository against its ow
 uv run automated-reviews publish-policy-compliance-workflow /path/to/repository
 ```
 
-The generated workflow reads `CONTRIBUTING.md` by default. Each finding must cite an exact policy ID defined in that file. Set `policy_document` in the generated workflow when another repository file owns those IDs.
+The generated workflow reads `CONTRIBUTING.md` by default.
+Each finding must cite an exact policy ID defined in that file.
+Set `policy_document` in the generated workflow when another repository file owns those IDs.
 
-[`sage-categories/CONTRIBUTING.md`](https://github.com/dzackgarza/sage-categories/blob/main/CONTRIBUTING.md) is the reference format. It uses stable IDs such as `POL-CAT-001` beside each policy statement.
+[`sage-categories/CONTRIBUTING.md`](https://github.com/dzackgarza/sage-categories/blob/main/CONTRIBUTING.md) is the reference format.
+It uses stable IDs such as `POL-CAT-001` beside each policy statement.
 
 ## Select the production model
 
