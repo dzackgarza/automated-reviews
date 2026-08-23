@@ -1,57 +1,84 @@
 ## Existing repo-wide review findings
 
-Open alerts are carried forward into the next SARIF upload by automation. Do not duplicate them in your report unless you have new evidence, the problem reappears in a materially different form, or the previous resolution is directly contradicted by the current code.
+Open alerts are carried forward into the next SARIF upload by automation.
+Do not duplicate them in your report unless you have new evidence, the problem reappears in a materially different form, or the previous resolution is directly contradicted by the current code.
 
 ### ai-review/slop
 
 **Open / accepted findings:**
-- **SLOP** at `src/sage_categories/compiler.py:320`  
+
+- **SLOP** at `src/sage_categories/compiler.py:320`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/11
-- **SLOP SUSPECT** at `src/sage_categories/compiler.py:332`  
+
+- **SLOP SUSPECT** at `src/sage_categories/compiler.py:332`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/12
 
 **Fixed findings:**
-- **SLOP** at `src/sage_categories/theories/sets.py:180`  
+
+- **SLOP** at `src/sage_categories/theories/sets.py:180`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/1
-- **SLOP** at `src/sage_categories/theories/sets.py:592`  
+
+- **SLOP** at `src/sage_categories/theories/sets.py:592`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/2
-- **SLOP SUSPECT** at `src/sage_categories/compiler.py:332`  
+
+- **SLOP SUSPECT** at `src/sage_categories/compiler.py:332`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/3
-- **SLOP** at `src/sage_categories/theories/sets.py:176`  
+
+- **SLOP** at `src/sage_categories/theories/sets.py:176`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/4
-- **SLOP** at `src/sage_categories/theories/sets.py:580`  
+
+- **SLOP** at `src/sage_categories/theories/sets.py:580`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/5
-- **SLOP** at `src/sage_categories/compiler.py:320`  
+
+- **SLOP** at `src/sage_categories/compiler.py:320`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/6
-- **SLOP** at `src/sage_categories/category.py:59`  
+
+- **SLOP** at `src/sage_categories/category.py:59`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/7
-- **SLOP** at `src/sage_categories/theories/sets.py:176`  
+
+- **SLOP** at `src/sage_categories/theories/sets.py:176`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/8
-- **SLOP** at `specs/cardinality.md:200`  
+
+- **SLOP** at `specs/cardinality.md:200`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/9
-- **SLOP** at `tests/test_cat.sage:1`  
+
+- **SLOP** at `tests/test_cat.sage:1`\
   Alert: https://github.com/dzackgarza/sage-categories/security/code-scanning/10
 
 ## Review items already surfaced on this PR
 
-These findings already have review threads on this pull request. Do not re-raise them; a resolved thread is a disposition.
+These findings already have review threads on this pull request.
+Do not re-raise them; a resolved thread is a disposition.
 
 - [resolved] `src/sage_categories/theories/sets.py` — ### [Slop Review][tier1] SLOP
+
 - [resolved] `src/sage_categories/compiler.py` — ### [Slop Review][tier2] SLOP SUSPECT
+
 - [resolved] `src/sage_categories/compiler.py` — ## ai-review/slop / POLICY.NO_UNJUSTIFIED_OPTIONALITY: No unjustified optionality for absent data
+
 - [resolved] `src/sage_categories/compiler.py` — ## ai-review/slop / POLICY.NO_MYOPIC_PATCHING: No token-local repair of architectural violations
+
 - [resolved] `src/sage_categories/theories/sets.py` — ### [Slop Review][tier1] SLOP
+
 - [resolved] `src/sage_categories/compiler.py` — ### [Slop Review][tier2] SLOP SUSPECT
+
 - [resolved] `src/sage_categories/category.py` — ### [Slop Review][tier1] SLOP
+
 - [resolved] `src/sage_categories/theories/sets.py` — ### [Slop Review][tier1] SLOP
+
 - [resolved] `specs/cardinality.md` — ### [Slop Review][tier1] SLOP SUSPECT
+
 - [resolved] `tests/test_cat.sage` — ### [Slop Review][tier2] SLOP
+
 - [resolved] `src/sage_categories/compiler.py` — ## ai-review/slop / POLICY.NO_UNJUSTIFIED_OPTIONALITY: No unjustified optionality for absent data
+
 - [resolved] `src/sage_categories/compiler.py` — ## ai-review/slop / POLICY.NO_MYOPIC_PATCHING: No token-local repair of architectural violations
 
 ## PR claim map
 
-The PR description below states what the author claims this PR proves and the evidence they cite. Cross-reference the *claimed boundary obligation* (which issue is marked satisfied, what real-world boundary it names) against the *evidence shape* in the diff. If the PR claims a real boundary (app boot, browser, subprocess, downstream repo, hook) is satisfied but the evidence is developer-controlled (fake executable, argv recorder, helper-only test, call-count assertion, synthetic provider, empty config generation), that is proof-laundering — flag it as `POLICY.NO_MOCK_PROOF` or `POLICY.NO_HELPER_PROOF` rather than accepting the green surface.
+The PR description below states what the author claims this PR proves and the evidence they cite.
+Cross-reference the *claimed boundary obligation* (which issue is marked satisfied, what real-world boundary it names) against the *evidence shape* in the diff.
+If the PR claims a real boundary (app boot, browser, subprocess, downstream repo, hook) is satisfied but the evidence is developer-controlled (fake executable, argv recorder, helper-only test, call-count assertion, synthetic provider, empty config generation), that is proof-laundering — flag it as `POLICY.NO_MOCK_PROOF` or `POLICY.NO_HELPER_PROOF` rather than accepting the green surface.
 
 ```markdown
 ## Summary

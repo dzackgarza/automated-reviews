@@ -23,5 +23,5 @@ def test_pr3_case_builds_the_original_replay_specification() -> None:
         model="opencode/nemotron-3-ultra-free",
     )
 
-    assert case.reviewer_context_sha256 == "7509a96ab8c4bc626d403aaa1fa25cc830c8fec4c4f8de2f7cbefbaeeb04f19f"
+    assert case.reviewer_context_sha256 == "bb2e60044ca827f0e063a427a9d1b1c42132bb810f2313801febdbf9c7bad544"
     assert case.observed_job_log_sha256 == "b4c2f7d907e59c9391faae2d3e257cace1263560d9eaab355508fc9844c7b949"
