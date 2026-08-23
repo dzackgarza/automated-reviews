@@ -5,7 +5,7 @@ from pathlib import Path
 
 WORKFLOW_NAMES = ("review-slop.yml", "review-pr.yml")
 ISSUE_ALIGNMENT_WORKFLOW = "issue-alignment.yml"
-SUPPORTED_PROFILES = ("python", "bun", "bun-playwright", "bun-python", "rust", "sage")
+SUPPORTED_PROFILES = ("python", "bun", "bun-playwright", "bun-python", "docs-and-configs", "rust", "sage")
 
 
 def workflow_text(name: str, *, profile: str, review_ref: str, qc_ref: str) -> str:
