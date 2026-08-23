@@ -20,7 +20,7 @@ from automated_reviews.models import (
 )
 
 RUNNER_DIRECTORY = Path("environments/github-ubuntu-24.04")
-ARTIFACT_DIRECTORY = Path("artifacts")
+ARTIFACT_DIRECTORY = Path(".artifacts")
 CONTROL_REPO = "/home/runner/work/sage-categories/sage-categories"
 INFRA_REPO = "/home/runner/work/_temp/ai-review-ci"
 PRIVATE_SUBMIT = "/opt/ai-review/private/ci/private/submit-candidate"

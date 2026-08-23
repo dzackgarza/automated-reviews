@@ -32,7 +32,7 @@ just replay cases/sage-categories-pr3-run32660872242 opencode/nemotron-3-ultra-f
 The replay is a targeted pytest test.
 Docker caches the frozen runner image after its first build.
 Each run streams the model transcript to the terminal.
-It writes prompts, every submitted candidate, validation feedback, and OpenCode state under `artifacts/`. It also writes the final report when a candidate passes production validation.
+It writes prompts, every submitted candidate, validation feedback, and OpenCode state under `.artifacts/`. It also writes the final report when a candidate passes production validation.
 
 The frozen case contains a Git bundle for the exact merge checkout.
 It also contains the exact `ai-review-ci` archive and the reconstructed reviewer context.
