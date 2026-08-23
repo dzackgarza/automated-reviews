@@ -458,4 +458,3 @@ def test_run_review_final_fatal_reflects_only_last_attempt_outcome(tmp_path: Pat
     # only the last attempt's outcome (a missing artifact), not the earlier timeout.
     fatal = [line for line in result.stderr.splitlines() if line.startswith("FATAL:")]
     assert fatal == ["FATAL: No report artifact after 2 attempts"]
-
