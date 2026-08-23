@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
   "cyclopts>=4.6.1",
+  "playwright>=1.62.0",
   "pydantic>=2.12.5",
   "sarif-pydantic>=0.6.2",
   "tomli-w>=1.2.0",
