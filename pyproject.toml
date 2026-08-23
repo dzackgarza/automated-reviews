@@ -18,8 +18,14 @@ dependencies = [
 automated-reviews = "automated_reviews.cli:app"
 
 [dependency-groups]
-dev = ["pytest>=9.0.2"]
+dev = [
+    "pytest>=9.0.2",
+]
 
 [tool.uv.build-backend]
 module-name = "automated_reviews"
 module-root = "src"
+
+[tool.pytest.ini_options]
+addopts = "-m 'not replay'"
+markers = ["replay: run the production reviewer in the frozen local runner"]

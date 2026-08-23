@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${REVIEWER_REPO:?REVIEWER_REPO is required}"
+
+readonly candidate="${REVIEWER_REPO}/.agents/review-runner/candidates/submitted.json"
+readonly capture_directory="/replay-output/candidates"
+readonly counter_path="${capture_directory}/next"
+readonly production_submit="/opt/ai-review/private/ci/private/submit-candidate.real"
+
+if [[ "${1:-}" == "--help" ]]; then
+    exec "${production_submit}" "$@"
+fi
+
+mkdir -p "${capture_directory}"
+if [[ -f "${counter_path}" ]]; then
+    read -r attempt <"${counter_path}"
+else
+    attempt=1
+fi
+printf -v capture_path '%s/%03d.json' "${capture_directory}" "${attempt}"
+cp "${candidate}" "${capture_path}"
+printf '%d\n' "$((attempt + 1))" >"${counter_path}"
+
+exec "${production_submit}" "$@"

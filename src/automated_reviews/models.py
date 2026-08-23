@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, validate_call
@@ -53,7 +54,14 @@ class CaseManifest(BaseModel):
     runner_image: Literal["ubuntu-24.04"]
     runner_image_version: str = Field(min_length=1)
     runner_version: str = Field(pattern=r"^\d+\.\d+\.\d+$")
+    runner_base_image: str = Field(pattern=r"^[^\s]+@sha256:[0-9a-f]{64}$")
+    local_runner_image_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    uv_version: str = Field(pattern=r"^\d+\.\d+\.\d+$")
+    just_version: str = Field(pattern=r"^\d+\.\d+\.\d+$")
+    safety_net_version: str = Field(pattern=r"^\d+\.\d+\.\d+$")
     context_origin: Literal["reconstructed-from-github-state"]
+    target_bundle_sha256: Sha256
+    infra_archive_sha256: Sha256
     reviewer_context_sha256: Sha256
     observed_job_log_sha256: Sha256
     observed_review_comments_sha256: Sha256
@@ -74,3 +82,34 @@ class CaseManifest(BaseModel):
             scope=self.scope,
             model=model,
         )
+
+
+class ReplayResult(BaseModel):
+    """Observable result of one local production-review execution."""
+
+    model_config = ConfigDict(strict=True, frozen=True)
+
+    exit_code: int
+    output_directory: Path
+
+
+class OpenCodeReplayConfig(BaseModel):
+    """OpenCode configuration installed outside the reviewer repository."""
+
+    model_config = ConfigDict(strict=True, frozen=True, populate_by_name=True)
+
+    schema_url: str = Field(serialization_alias="$schema")
+    plugin: tuple[str, ...]
+    model: ModelId
+    permission: dict[Literal["webfetch"], Literal["deny"]]
+
+
+class ReplayRunRecord(BaseModel):
+    """Machine-readable identity and outcome for one replay."""
+
+    model_config = ConfigDict(strict=True, frozen=True)
+
+    case_id: str
+    model: ModelId
+    exit_code: int
+    local_runner_image_id: str

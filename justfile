@@ -25,3 +25,7 @@ test-push:
 # Run CI acceptance QC through the central implementation.
 test-ci:
     @just -f ~/ai-review-ci/justfiles/python.just -d . test-ci
+
+# Run one frozen review through the local replay test.
+replay case model:
+    uv run pytest -m replay tests/test_replay.py --replay-model {{model}} -vv -s
