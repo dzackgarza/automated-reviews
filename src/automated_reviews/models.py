@@ -7,7 +7,6 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, validate_call
 
-
 GitSha = Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")]
 ModelId = Annotated[str, Field(pattern=r"^[^/\s]+/[^/\s]+$")]
 RepositoryId = Annotated[str, Field(pattern=r"^[^/\s]+/[^/\s]+$")]
@@ -58,4 +57,3 @@ class CaseManifest(BaseModel):
             infra_sha=self.infra_sha,
             model=model,
         )
-

@@ -3,7 +3,6 @@ from pathlib import Path
 from automated_reviews.fixtures import load_case
 from automated_reviews.models import ReplaySpec
 
-
 CASE = Path("cases/sage-categories-pr3-run32660872242")
 
 
@@ -20,4 +19,3 @@ def test_pr3_case_builds_the_original_replay_specification() -> None:
         infra_sha="c63800d106abab8e664daab4121d6d62a5bc6e71",
         model="opencode/nemotron-3-ultra-free",
     )
-

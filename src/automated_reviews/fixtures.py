@@ -17,4 +17,3 @@ def load_case(case_directory: Path) -> CaseManifest:
     with manifest_path.open("rb") as manifest_file:
         manifest_data = tomllib.load(manifest_file)
     return CaseManifest.model_validate(manifest_data)
-

@@ -2,6 +2,4 @@
 
 from automated_reviews.cli import app
 
-
 app()
-
