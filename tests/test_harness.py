@@ -122,9 +122,7 @@ def test_real_diff_scope_prompt_names_submission_contract(tmp_path: Path) -> Non
     prompt = result.stdout
 
     assert prompt.startswith("# Slop Reviewer\n")
-    assert prompt.rstrip().endswith(
-        "Submit only specific `POLICY.*` slop violations.\nOtherwise, submit an empty findings array."
-    )
+    assert prompt.rstrip().endswith("Submit only specific `POLICY.*` slop violations.\nOtherwise, submit an empty findings array.")
     assert ".agents/review-runner/candidates/submitted.json" in prompt
     assert "/home/reviewer/bin/submit-candidate --help" in prompt
     assert "Then run `/home/reviewer/bin/submit-candidate`" in prompt
