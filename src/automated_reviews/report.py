@@ -16,6 +16,7 @@ messages carrying FIX guidance.
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Literal
@@ -25,12 +26,22 @@ from pydantic import ValidationError
 from automated_reviews.json_types import JsonObject
 from automated_reviews.report_models import MODEL_BY_TYPE, finding_fingerprint
 
-ReportType = Literal["slop"]
+ReportType = Literal["slop", "compliance"]
 
 SCHEMA_VERSION = 1
 
 
-def validate_report(path: Path, report_type: ReportType, output: Path) -> None:
+def _policy_ids(policy_document: Path | None) -> frozenset[str]:
+    if policy_document is None:
+        return frozenset()
+    if not policy_document.is_file():
+        print(f"Error: policy document not found: {policy_document}", file=sys.stderr)
+        sys.exit(1)
+    pattern = r"(?<![A-Z0-9_-])[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-[0-9]{3,}(?![A-Z0-9_-])"
+    return frozenset(re.findall(pattern, policy_document.read_text()))
+
+
+def validate_report(path: Path, report_type: ReportType, output: Path, policy_document: Path | None = None) -> None:
     """Validate a candidate report and write the artifact.
 
     The report contains analysis only — findings, scope, surfaces. All
@@ -39,8 +50,9 @@ def validate_report(path: Path, report_type: ReportType, output: Path) -> None:
 
     Args:
         path: Path to the candidate report JSON file.
-        report_type: Type of report — "slop".
+        report_type: Type of report — "slop" or "compliance".
         output: Where to write the validated artifact.
+        policy_document: Repository policy source for compliance reports.
     """
     if not path.is_file():
         print(f"Error: file not found: {path}", file=sys.stderr)
@@ -58,7 +70,8 @@ def validate_report(path: Path, report_type: ReportType, output: Path) -> None:
         data["schema_version"] = SCHEMA_VERSION
 
     try:
-        MODEL_BY_TYPE[report_type].model_validate(data)
+        context = {"policy_ids": _policy_ids(policy_document)} if report_type == "compliance" else None
+        MODEL_BY_TYPE[report_type].model_validate(data, context=context)
     except ValidationError as exc:
         print(f"Report validation FAILED:\n  {exc}")
         sys.exit(1)
@@ -71,7 +84,7 @@ def report_schema(report_type: ReportType) -> None:
     """Dump JSON Schema for a report type.
 
     Args:
-        report_type: Which report schema to dump — "slop".
+        report_type: Which report schema to dump — "slop" or "compliance".
     """
     print(json.dumps(MODEL_BY_TYPE[report_type].model_json_schema(), indent=2))
 

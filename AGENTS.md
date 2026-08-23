@@ -1,6 +1,6 @@
 # Agent instructions
 
-This repository owns the complete LLM slop-review system.
+This repository owns the complete LLM slop-review and policy-compliance review systems.
 
 It owns production workflows, prompts, policy inputs, report schemas, the slop-review
 runner, validation, delivery, model selection, and frozen replay.

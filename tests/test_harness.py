@@ -132,6 +132,40 @@ def test_real_diff_scope_prompt_names_submission_contract(tmp_path: Path) -> Non
     assert "opx submit-candidate" not in prompt
 
 
+def test_policy_compliance_prompt_is_bounded_by_contributing(tmp_path: Path) -> None:
+    from automated_reviews.harness import build_compliance_prompt
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "CONTRIBUTING.md").write_text("| `POL-CAT-001` | Categories own constructors. |\n")
+    (repo / ".reviewer-diff.patch").write_text("diff --git a/app.py b/app.py\n")
+    context = tmp_path / "context.md"
+    context.write_text("No prior compliance findings.\n")
+
+    prompt = build_compliance_prompt(
+        Path("reviews/compliance/template.md"),
+        Path("reviews/compliance/scope-diff.md"),
+        context,
+        repo,
+        "CONTRIBUTING.md",
+    )
+
+    assert prompt.startswith("# Policy Compliance Reviewer\n")
+    assert "POL-CAT-001" in prompt
+    assert prompt.rstrip().endswith("Otherwise, submit an empty findings array.")
+    assert "generic code-review findings" in prompt
+
+
+def test_policy_compliance_workflow_requires_policy_document() -> None:
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "_policy-compliance-review.yml").read_text())
+    inputs = workflow[True]["workflow_call"]["inputs"]
+    assert inputs["policy_document"]["default"] == "CONTRIBUTING.md"
+    assert "policy_paths" not in inputs
+    steps = workflow["jobs"]["policy-compliance-review"]["steps"]
+    run_step = next(step for step in steps if step.get("name") == "Run policy compliance review")
+    assert "run-policy-compliance-review" in run_step["run"]
+
+
 def _prompt_inputs(tmp_path: Path, scope_name: str) -> dict[str, Path]:
     """Real prompt-assembly inputs for direct build_initial_prompt calls."""
     repo = tmp_path / "repo"

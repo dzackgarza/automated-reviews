@@ -11,7 +11,7 @@ import pytest
 from pydantic import ValidationError
 
 from automated_reviews.policy_index import canonical_route
-from automated_reviews.report_models import SlopReport, finding_fingerprint
+from automated_reviews.report_models import ComplianceReport, SlopReport, finding_fingerprint
 from tests.conftest import (
     APP_FILE,
     APP_LINES,
@@ -254,6 +254,32 @@ def test_slop_finding_requires_policy_code(checkout: Path) -> None:
         SlopReport.model_validate(slop_candidate(findings=[missing]))
     with pytest.raises(ValidationError):
         SlopReport.model_validate(slop_candidate(findings=[slop_finding(policy_code=None)]))
+
+
+def test_compliance_report_requires_policy_id_from_supplied_document(checkout: Path) -> None:
+    finding = {
+        "tier": "tier1",
+        "label": "POLICY VIOLATION",
+        "category": "category-ownership",
+        "policy_code": "POL-CAT-001",
+        "location": {"path": APP_FILE, "start_line": 2, "end_line": 4},
+        "violated_policy": "A category owns its constructors and implementation types.",
+        "observed_behavior": "The object class constructs category-owned arrows directly.",
+        "consequence": "The public owner differs from the policy owner.",
+        "evidence": [{"kind": "file-read", "path": APP_FILE, "lines": [2, 4]}],
+    }
+    candidate = {
+        "schema_version": 1,
+        "report_type": "compliance",
+        "review_scope": [APP_FILE],
+        "findings": [finding],
+    }
+
+    report = ComplianceReport.model_validate(candidate, context={"policy_ids": frozenset({"POL-CAT-001"})})
+    assert report.findings[0].policy_code == "POL-CAT-001"
+
+    with pytest.raises(ValidationError, match="not defined by the supplied policy document"):
+        ComplianceReport.model_validate(candidate, context={"policy_ids": frozenset({"POL-CAT-999"})})
 
 
 def test_slop_report_rejects_finding_authored_remediation(checkout: Path) -> None:

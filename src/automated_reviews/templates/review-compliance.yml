@@ -1,0 +1,18 @@
+name: Policy Compliance Review
+
+on:
+  pull_request: {}
+  workflow_dispatch:
+
+jobs:
+  policy-compliance-review:
+    uses: dzackgarza/automated-reviews/.github/workflows/_policy-compliance-review.yml@{{ review_ref }}
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+      pull-requests: write
+      issues: write
+    with:
+      scope: ${{ github.event_name == 'pull_request' && 'diff' || 'repo' }}
+      policy_document: CONTRIBUTING.md

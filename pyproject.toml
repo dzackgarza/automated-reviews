@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 name = "automated-reviews"
 version = "0.1.0"
-description = "Run and replay policy-index slop reviews"
+description = "Run slop and repository policy-compliance reviews"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

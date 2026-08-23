@@ -20,6 +20,13 @@ fetch-slop-context tool_name pr_number:
       --alerts-output "{{control_repo}}/.reviewer-alerts.json" \
       --pr-number "{{pr_number}}"
 
+fetch-policy-compliance-context pr_number:
+    uv run --project {{infra}} automated-reviews fetch-policy-compliance-context \
+      --repo "${GITHUB_REPOSITORY}" \
+      --output "{{control_repo}}/.reviewer-context.md" \
+      --alerts-output "{{control_repo}}/.reviewer-alerts.json" \
+      --pr-number "{{pr_number}}"
+
 create-reviewer:
     if reviewer_entry="$(getent passwd reviewer)"; then \
       IFS=: read -r name _ uid gid gecos home shell <<< "$reviewer_entry"; \
@@ -53,7 +60,7 @@ install-reviewer-home:
 install-sudo-rule:
     { echo "reviewer ALL=(root) NOPASSWD: {{private_tools}}/ci/private/submit-candidate"; \
       echo "reviewer ALL=(root) NOPASSWD: {{private_tools}}/ci/private/submit-candidate *"; \
-      echo "Defaults!{{private_tools}}/ci/private/submit-candidate env_keep += \"REPORT_TYPE REVIEWER_REPO CONTROL_REPO\""; \
+      echo "Defaults!{{private_tools}}/ci/private/submit-candidate env_keep += \"REPORT_TYPE REVIEWER_REPO CONTROL_REPO POLICY_DOCUMENT\""; \
     } | sudo tee /etc/sudoers.d/ai-review-submit >/dev/null
     sudo chmod 0440 /etc/sudoers.d/ai-review-submit
     sudo visudo -c -f /etc/sudoers.d/ai-review-submit
@@ -145,6 +152,28 @@ run-slop-review scope:
         --reviewer-context .reviewer-context.md \
         --policy-paths "$AI_REVIEW_POLICY_PATHS" \
         --slop-focus "$AI_SLOP_REVIEW_FOCUS"'
+
+run-policy-compliance-review scope policy_document:
+    sudo -u reviewer -H env \
+      PATH="{{reviewer_home}}/bin:/usr/bin:/bin" \
+      HOME="{{reviewer_home}}" \
+      XDG_CONFIG_HOME="{{reviewer_home}}/.config" \
+      XDG_DATA_HOME="{{reviewer_home}}/.local/share" \
+      XDG_STATE_HOME="{{reviewer_home}}/.local/state" \
+      XDG_CACHE_HOME="{{reviewer_home}}/.cache" \
+      REPORT_TYPE="compliance" \
+      POLICY_DOCUMENT="{{policy_document}}" \
+      REVIEWER_REPO="{{reviewer_repo}}" \
+      CONTROL_REPO="{{control_repo}}" \
+      AI_REVIEW_OPENCODE_BIN="/usr/local/bin/opencode" \
+      AI_REVIEW_OPENCODE_TIMEOUT="600" \
+      AI_REVIEW_MAX_ATTEMPTS="5" \
+      AI_REVIEW_BACKOFF="5" \
+      bash -lc 'cd {{reviewer_repo}} && /usr/local/bin/opencode --version && /usr/local/bin/uv run --project {{reviewer_infra}} automated-reviews run-policy-compliance-review \
+        --template "{{reviewer_infra}}/reviews/compliance/template.md" \
+        --scope "{{reviewer_infra}}/reviews/compliance/scope-{{scope}}.md" \
+        --reviewer-context .reviewer-context.md \
+        --policy-document "$POLICY_DOCUMENT"'
 
 collect-output:
     cp {{reviewer_repo}}/.review-report-artifact.json {{control_repo}}/.review-report-artifact.json

@@ -1,6 +1,6 @@
 # automated-reviews
 
-`automated-reviews` runs policy-index slop reviews and replays captured CI environments locally.
+`automated-reviews` runs slop reviews and repository-defined policy-compliance reviews. It also replays captured CI environments locally.
 It publishes reusable GitHub workflows and keeps the active reviewer model in one metadata file.
 
 Use a frozen case to compare slop-review behavior against the same repository, prompt, tools, and context.
@@ -95,6 +95,18 @@ They call [`ai-review-ci`](https://github.com/dzackgarza/ai-review-ci) for deter
 The GitHub workflows require read access to repository contents.
 They also require write access to pull requests, issues, and code-scanning results.
 
+## Publish a policy-compliance workflow
+
+Create a pull-request workflow that reviews the target repository against its own permanent policy IDs:
+
+```bash
+uv run automated-reviews publish-policy-compliance-workflow /path/to/repository
+```
+
+The generated workflow reads `CONTRIBUTING.md` by default. Each finding must cite an exact policy ID defined in that file. Set `policy_document` in the generated workflow when another repository file owns those IDs.
+
+[`sage-categories/CONTRIBUTING.md`](https://github.com/dzackgarza/sage-categories/blob/main/CONTRIBUTING.md) is the reference format. It uses stable IDs such as `POL-CAT-001` beside each policy statement.
+
 ## Select the production model
 
 [`src/automated_reviews/data/reviewer.toml`](src/automated_reviews/data/reviewer.toml) contains the active model identifier.
@@ -111,6 +123,8 @@ Replay output stays under `.git/automated-reviews/artifacts/` and can contain co
 - [Frozen case manifest](cases/sage-categories-pr3-run32660872242/case.toml)
 
 - [Reusable slop-review workflow](.github/workflows/_slop-review.yml)
+
+- [Reusable policy-compliance workflow](.github/workflows/_policy-compliance-review.yml)
 
 - [Reusable issue-alignment workflow](.github/workflows/_issue-alignment.yml)
 

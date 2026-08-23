@@ -313,11 +313,11 @@ def _issue_ledger_lines(cat: str, issues: list[JsonDict]) -> list[str]:
     return lines
 
 
-def _pr_thread_lines(repo: str, pr_number: int) -> list[str]:
-    """Digest slop findings already surfaced on the PR."""
+def _pr_thread_lines(repo: str, pr_number: int, review_name: str = "slop") -> list[str]:
+    """Digest findings already surfaced on the PR."""
     threads = _fetch_pr_threads(repo, pr_number)
     lines = [
-        "## Slop findings already surfaced on this PR",
+        f"## {review_name.title()} findings already surfaced on this PR",
         "",
         "These findings already have review threads on this pull request. Do not re-raise them; a resolved thread is a disposition.",
         "",
@@ -387,28 +387,18 @@ def _pr_claim_map_lines(body: str) -> list[str]:
     ]
 
 
-def fetch_slop_context(
+def _fetch_review_context(
     repo: str,
-    tool_names: str = DEFAULT_TOOL_NAMES,
+    tool_names: str,
+    review_name: str,
     output: Path | None = None,
     alerts_output: Path | None = None,
     pr_number: int = 0,
 ) -> None:
-    """Generate slop-review context from prior slop findings.
-
-    Args:
-        repo: Repository in owner/repo format.
-        tool_names: Comma-separated SARIF tool names (tool.driver.name) to query.
-        output: Output file path (default: stdout).
-        alerts_output: JSON sidecar for open alerts that must be carried into
-            the next SARIF upload.
-        pr_number: PR number for diff-scoped runs; adds PR-ref alerts and the
-            digest of review threads already on the PR (0 = not a PR run).
-    """
     names = [c.strip() for c in tool_names.split(",") if c.strip()]
 
     lines: list[str] = [
-        "## Existing repo-wide slop findings",
+        f"## Existing repo-wide {review_name} findings",
         "",
         "Open alerts are carried forward into the next SARIF upload by "
         "automation. Do not duplicate them in your report unless you have "
@@ -423,19 +413,42 @@ def fetch_slop_context(
         lines.extend(_issue_ledger_lines(cat, _fetch_ledger_issues(repo, cat)))
 
     if pr_number:
-        lines.extend(_pr_thread_lines(repo, pr_number))
-        pr_body = _fetch_pr_body(repo, pr_number)
-        if pr_body is not None:
-            lines.extend(_pr_claim_map_lines(pr_body))
+        lines.extend(_pr_thread_lines(repo, pr_number, review_name))
+        if review_name == "slop":
+            pr_body = _fetch_pr_body(repo, pr_number)
+            if pr_body is not None:
+                lines.extend(_pr_claim_map_lines(pr_body))
 
     text = "\n".join(lines).strip() + "\n"
 
     if output:
         output.write_text(text)
-        print(f"Slop-review context written to {output}", file=sys.stderr)
+        print(f"{review_name.title()} context written to {output}", file=sys.stderr)
     else:
         print(text)
 
     if alerts_output:
         alerts_output.write_text(json.dumps(_carry_forward_payload(repo, names, pr_number), indent=2) + "\n")
         print(f"Carry-forward alerts written to {alerts_output}", file=sys.stderr)
+
+
+def fetch_slop_context(
+    repo: str,
+    tool_names: str = DEFAULT_TOOL_NAMES,
+    output: Path | None = None,
+    alerts_output: Path | None = None,
+    pr_number: int = 0,
+) -> None:
+    """Generate slop-review context from prior slop findings."""
+    _fetch_review_context(repo, tool_names, "slop", output, alerts_output, pr_number)
+
+
+def fetch_policy_compliance_context(
+    repo: str,
+    tool_names: str = "ai-review/compliance",
+    output: Path | None = None,
+    alerts_output: Path | None = None,
+    pr_number: int = 0,
+) -> None:
+    """Generate policy-compliance context from prior compliance findings."""
+    _fetch_review_context(repo, tool_names, "policy compliance", output, alerts_output, pr_number)

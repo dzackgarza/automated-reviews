@@ -221,12 +221,34 @@ def build_initial_prompt(
     return "\n\n".join(sections)
 
 
-def retry_prompt(submitted_path: Path) -> str:
+def build_compliance_prompt(
+    template_path: Path,
+    scope_path: Path,
+    ctx_path: Path,
+    repo_root: Path,
+    policy_document: str,
+) -> str:
+    """Assemble a review bounded by the IDs in one repository policy document."""
+    policy = repo_root / policy_document
+    _require_files(template_path, scope_path, ctx_path, policy)
+    sections = [template_path.read_text(), ctx_path.read_text()]
+    if is_diff_scope(scope_path):
+        sections.append(diff_prompt_section(repo_root))
+    sections.append(f"## Governing Policy Document: {policy_document}\n\n{policy.read_text()}")
+    sections.append(
+        scope_path.read_text()
+        + "\n\nSubmit only violations of an exact policy ID defined in the governing policy document.\n"
+        "Otherwise, submit an empty findings array."
+    )
+    return "\n\n".join(sections)
+
+
+def retry_prompt(submitted_path: Path, review_name: str = "slop") -> str:
     """Continuation prompt used when an attempt produced no valid artifact."""
     return (
         f"The previous invocation in this opencode session ended without "
-        f"a valid slop report at {ARTIFACT_PATH}. Continue the existing session. "
-        f"Write the slop report to {submitted_path}, then run "
+        f"a valid {review_name} report at {ARTIFACT_PATH}. Continue the existing session. "
+        f"Write the {review_name} report to {submitted_path}, then run "
         f"{SUBMIT_CANDIDATE_BIN} with no arguments. Execute it only — do "
         f"not read, cat, ls, or stat it or anything else outside the "
         f"repository; such reads are auto-rejected and waste the attempt."
@@ -307,14 +329,7 @@ def run_slop_review(
         slop_focus: Repository guidance that prioritizes policy-index slop
             surfaces without expanding finding eligibility.
     """
-    config = OpencodeConfig.from_env()
     _require_files(template, scope, manifest, reviewer_context)
-
-    run_dir = Path(".agents/review-runner").resolve()
-    candidates_dir = run_dir / "candidates"
-    candidates_dir.mkdir(parents=True, exist_ok=True)
-    task_path = run_dir / "task.md"
-
     initial_prompt = build_initial_prompt(
         template,
         scope,
@@ -324,6 +339,34 @@ def run_slop_review(
         policy_paths=policy_paths,
         slop_focus=slop_focus,
     )
+    _run_review(initial_prompt, "slop")
+
+
+def run_policy_compliance_review(
+    template: Path,
+    scope: Path,
+    reviewer_context: Path,
+    policy_document: str = "CONTRIBUTING.md",
+) -> None:
+    """Review a repository against permanent IDs in its policy document."""
+    _require_files(template, scope, reviewer_context)
+    initial_prompt = build_compliance_prompt(
+        template,
+        scope,
+        reviewer_context,
+        Path.cwd(),
+        policy_document,
+    )
+    _run_review(initial_prompt, "policy compliance")
+
+
+def _run_review(initial_prompt: str, review_name: str) -> None:
+    """Run OpenCode until it submits one validated review artifact."""
+    config = OpencodeConfig.from_env()
+    run_dir = Path(".agents/review-runner").resolve()
+    candidates_dir = run_dir / "candidates"
+    candidates_dir.mkdir(parents=True, exist_ok=True)
+    task_path = run_dir / "task.md"
 
     submitted_path = candidates_dir / SUBMITTED_CANDIDATE
 
@@ -332,7 +375,7 @@ def run_slop_review(
         last_timeout = None
         if attempt > 1:
             time.sleep(config.backoff)
-            prompt = retry_prompt(submitted_path)
+            prompt = retry_prompt(submitted_path, review_name)
         else:
             prompt = initial_prompt
 
@@ -353,7 +396,7 @@ def run_slop_review(
             sys.exit(1)
 
         if ARTIFACT_PATH.exists():
-            print("--- Slop report artifact submitted ---", file=sys.stderr)
+            print(f"--- {review_name.title()} report artifact submitted ---", file=sys.stderr)
             ensure_blocking_stdio()
             sys.exit(0)
 

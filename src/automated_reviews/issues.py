@@ -44,11 +44,15 @@ LABEL_COLORS = {
     "ai-review": "1d76db",
     "needs-triage": "d93f0b",
     "ai-review/slop": "5319e7",
+    "ai-review/compliance": "0052cc",
 }
 
 # Narrative fields rendered by presence, mirroring sarif._OPTIONAL_PROPERTY_KEYS.
 _NARRATIVE_KEYS = (
     ("violated_invariant", "Violated invariant"),
+    ("violated_policy", "Violated policy"),
+    ("observed_behavior", "Observed behavior"),
+    ("consequence", "Consequence"),
     ("pattern", "Slop pattern"),
     ("task_narrative", "Task narrative"),
     ("slop_narrative", "Slop narrative"),
@@ -156,7 +160,7 @@ def _issue_body(finding: JsonDict, report_type: str, parent_issue: int, sha: str
         if isinstance(value, str) and value:
             lines.append(f"**{heading}:** {value}")
     policy_code = finding.get("policy_code")
-    if isinstance(policy_code, str):
+    if isinstance(policy_code, str) and report_type == "slop":
         route = canonical_route(policy_code)
         lines.extend(
             [

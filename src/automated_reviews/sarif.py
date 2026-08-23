@@ -53,6 +53,9 @@ _OPTIONAL_PROPERTY_KEYS = (
     ("proof_command", "proof_command"),
     ("pattern", "slop_pattern"),
     ("why_it_matters", "why_it_matters"),
+    ("violated_policy", "violated_policy"),
+    ("observed_behavior", "observed_behavior"),
+    ("consequence", "consequence"),
 )
 
 CARRY_FORWARD_SCHEMA_VERSION = 1
@@ -123,10 +126,10 @@ def _level_to_tier(level: str) -> str:
     _die(f"invalid carry-forward alert: alert.rule.severity is unsupported: {level}")
 
 
-def _rule_for(finding: JsonDict) -> ReportingDescriptor:
+def _rule_for(finding: JsonDict, report_type: str) -> ReportingDescriptor:
     """SARIF rule entry seeded from the first finding of its category."""
     policy_code = finding.get("policy_code")
-    if isinstance(policy_code, str):
+    if isinstance(policy_code, str) and report_type == "slop":
         policy = load_policy_index().policy(policy_code)
         return ReportingDescriptor(
             id=finding["category"],
@@ -138,11 +141,13 @@ def _rule_for(finding: JsonDict) -> ReportingDescriptor:
                 "remediation_code": policy.remediation_code,
             },
         )
+    description = finding.get("violated_policy") or finding.get("violated_invariant")
     return ReportingDescriptor(
         id=finding["category"],
         name=finding["label"],
-        shortDescription=Message(text=finding["violated_invariant"][:200]),
+        shortDescription=Message(text=f"{policy_code}: {description}"[:200]),
         defaultConfiguration=ReportingConfiguration(level=_tier_to_level(finding["tier"])),
+        properties={"policy_code": policy_code} if isinstance(policy_code, str) else {},
     )
 
 
@@ -168,10 +173,12 @@ def _result_properties(finding: JsonDict, report_type: str) -> JsonDict:
         "reviewer": reviewer_identity(report_type),
     }
     policy_code = finding.get("policy_code")
-    if isinstance(policy_code, str):
+    if isinstance(policy_code, str) and report_type == "slop":
         policy = load_policy_index().policy(policy_code)
         properties["policy_code"] = policy.code
         properties["remediation_code"] = policy.remediation_code
+    elif isinstance(policy_code, str):
+        properties["policy_code"] = policy_code
     for key, prop_name in _OPTIONAL_PROPERTY_KEYS:
         if prop_name in properties:
             continue
@@ -182,7 +189,7 @@ def _result_properties(finding: JsonDict, report_type: str) -> JsonDict:
 
 def _sarif_result(finding: JsonDict, rule_index: int, report_type: str) -> Result:
     loc = finding["location"]
-    message_text = finding["violated_invariant"]
+    message_text = finding.get("violated_invariant") or finding["violated_policy"]
     return Result(
         ruleId=finding["category"],
         ruleIndex=rule_index,
@@ -329,7 +336,7 @@ def build_sarif(
             rules,
             results,
             finding_category,
-            _rule_for(finding),
+            _rule_for(finding, report_type),
             _sarif_result(finding, 0, report_type),
         )
 
@@ -398,7 +405,7 @@ def to_sarif(
     data = _mapping(json.loads(artifact.read_text()), "artifact")
 
     report_type = _string(data, "report_type", "artifact")
-    if report_type != "slop":
+    if report_type not in {"slop", "compliance"}:
         _die(f"unknown report_type '{report_type}' in artifact")
 
     sarif = build_sarif(

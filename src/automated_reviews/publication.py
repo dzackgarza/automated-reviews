@@ -5,6 +5,7 @@ from pathlib import Path
 
 WORKFLOW_NAMES = ("review-slop.yml", "review-pr.yml")
 ISSUE_ALIGNMENT_WORKFLOW = "issue-alignment.yml"
+COMPLIANCE_WORKFLOW = "review-compliance.yml"
 SUPPORTED_PROFILES = ("python", "bun", "bun-playwright", "bun-python", "docs-and-configs", "rust", "sage")
 
 
@@ -26,6 +27,21 @@ def issue_alignment_workflow_text(*, review_ref: str) -> str:
 def review_labels_text() -> str:
     """Return the canonical labels owned by the review system."""
     return (files("automated_reviews") / "data" / "labels.json").read_text(encoding="utf-8")
+
+
+def compliance_workflow_text(*, review_ref: str) -> str:
+    """Render the policy-compliance trigger."""
+    text = (files("automated_reviews") / "templates" / COMPLIANCE_WORKFLOW).read_text(encoding="utf-8")
+    return text.replace("{{ review_ref }}", review_ref)
+
+
+def publish_policy_compliance_workflow(target: Path, *, review_ref: str = "main") -> None:
+    """Write the policy-compliance workflow into a target repository."""
+    workflow_dir = target / ".github" / "workflows"
+    workflow_dir.mkdir(parents=True, exist_ok=True)
+    output = workflow_dir / COMPLIANCE_WORKFLOW
+    assert not output.exists(), f"review workflow already exists: {COMPLIANCE_WORKFLOW}"
+    output.write_text(compliance_workflow_text(review_ref=review_ref), encoding="utf-8")
 
 
 def publish_slop_workflows(

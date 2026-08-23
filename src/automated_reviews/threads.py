@@ -38,7 +38,7 @@ from automated_reviews.reviewer_identity import reviewer_identity
 JsonDict = JsonObject
 
 FINGERPRINT_MARKER = "ai-review-fingerprint:"
-REVIEW_LABELS = {"slop": "Slop Review"}
+REVIEW_LABELS = {"slop": "Slop Review", "compliance": "Policy Compliance Review"}
 REVIEW_IDENTITY_MARKER = "ai-review-reviewer:"
 
 THREADS_QUERY = """
@@ -158,12 +158,15 @@ def _thread_body_lines(finding: JsonDict, review_label: str, fp: str) -> list[st
             f"model={identity['model']}; prompt_id=reviews/{review_type}; "
             f"prompt_version={identity['prompt_version']}`"
         ),
-        f"**Violated invariant:** {finding['violated_invariant']}",
-        f"**Proof:** `{finding['proof_command']}`",
     ]
+    if violated := finding.get("violated_invariant") or finding.get("violated_policy"):
+        lines.append(f"**Violated policy:** {violated}")
+    if proof := finding.get("proof_command"):
+        lines.append(f"**Proof:** `{proof}`")
     for key, title in [
         ("symptom", "Symptom"),
         ("source", "Source"),
+        ("observed_behavior", "Observed behavior"),
         ("consequence", "Consequence"),
         ("pattern", "Pattern"),
         ("why_it_matters", "Why this matters"),
@@ -173,7 +176,7 @@ def _thread_body_lines(finding: JsonDict, review_label: str, fp: str) -> list[st
     ev_parts = [f"`{e['path']}:{e['lines'][0]}-{e['lines'][1]}` ({e['kind']})" for e in finding["evidence"]]
     lines.append(f"**Evidence:** {', '.join(ev_parts)}")
     policy_code = finding.get("policy_code")
-    if isinstance(policy_code, str):
+    if isinstance(policy_code, str) and review_type == "slop":
         route = canonical_route(policy_code)
         lines.extend(
             [

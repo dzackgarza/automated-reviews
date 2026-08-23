@@ -1,6 +1,6 @@
 """Pydantic report models — the single validation spec for review reports.
 
-The model selected by ``report_type`` ("slop") defines the
+The model selected by ``report_type`` defines the
 report contract: field semantics, semantic rejection rules, and the
 hallucination checks (every cited path must exist in the reviewed checkout,
 every line range must lie within the file). The reviewed checkout is the
@@ -24,6 +24,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    ValidationInfo,
     field_validator,
     model_validator,
 )
@@ -450,4 +451,51 @@ class SlopReport(BaseModel):
         return self
 
 
-MODEL_BY_TYPE: dict[str, type[SlopReport]] = {"slop": SlopReport}
+class ComplianceFinding(BaseModel):
+    """One concrete violation of a repository-defined policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tier: Literal["tier1", "tier2"] = Field(
+        description="tier1: definite policy violation. tier2: credible violation that needs human judgment."
+    )
+    label: Literal["POLICY VIOLATION", "POLICY SUSPECT"]
+    category: str = Field(description="Short policy area, such as category-ownership or testing.")
+    policy_code: str = Field(description="Exact permanent ID copied from the supplied policy document.")
+    location: Location
+    violated_policy: str = Field(min_length=20, description="The exact obligation imposed by the cited policy ID.")
+    observed_behavior: str = Field(min_length=20, description="The repository behavior that conflicts with the policy.")
+    consequence: str = Field(min_length=20, description="The concrete effect of the conflict.")
+    evidence: list[Evidence] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _policy_reference(self, info: ValidationInfo) -> Self:
+        policy_ids = info.context.get("policy_ids") if info.context else None
+        if not isinstance(policy_ids, frozenset) or self.policy_code not in policy_ids:
+            raise ValueError(
+                f"REJECTED: policy code '{self.policy_code}' is not defined by the supplied policy document. "
+                "FIX: copy an exact permanent policy ID from that document."
+            )
+        return self
+
+
+class ComplianceReport(BaseModel):
+    """Policy-compliance findings grounded in one repository policy document."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[1]
+    report_type: Literal["compliance"]
+    review_scope: list[Path] = Field(min_length=1)
+    findings: list[ComplianceFinding]
+
+    @model_validator(mode="after")
+    def _check_paths(self) -> Self:
+        validate_checkout_paths(self.review_scope, self.findings)
+        return self
+
+
+MODEL_BY_TYPE: dict[str, type[SlopReport] | type[ComplianceReport]] = {
+    "slop": SlopReport,
+    "compliance": ComplianceReport,
+}

@@ -41,13 +41,13 @@ The structural example below shows the expected JSON shape.
 Validator error messages teach the field-level constraints — do not read the
 validator script directly; it is root-owned and not available to the agent.
 
-Example (general report — slop uses SlopFinding fields):
+The schema matches the active slop or policy-compliance review.
 HELP
     echo ""
     echo "Full JSON Schema (auto-generated from pydantic models):"
     echo ""
     if [ -z "${REPORT_TYPE:-}" ]; then
-        echo "Error: REPORT_TYPE env var must be set (general or slop)" >&2
+        echo "Error: REPORT_TYPE env var must be set (slop or compliance)" >&2
         exit 1
     fi
     uv run --project "$PRIVATE_PROJECT" automated-reviews report-schema "$REPORT_TYPE"
@@ -61,7 +61,7 @@ if ! [ -f "$CANDIDATE" ]; then
 fi
 
 if [ -z "${REPORT_TYPE:-}" ]; then
-    echo "ERROR: REPORT_TYPE env var must be set (general or slop)" >&2
+    echo "ERROR: REPORT_TYPE env var must be set (slop or compliance)" >&2
     exit 1
 fi
 
@@ -69,8 +69,13 @@ fi
 # the real checkout, never the reviewer's writable copy.
 cd "$CONTROL_REPO"
 
+POLICY_ARGS=()
+if [ "$REPORT_TYPE" = "compliance" ]; then
+    POLICY_ARGS=(--policy-document "${POLICY_DOCUMENT:?POLICY_DOCUMENT is required for compliance reports}")
+fi
+
 if uv run --project "$PRIVATE_PROJECT" automated-reviews validate-report "$CANDIDATE" \
-      --report-type "$REPORT_TYPE" --output "$ARTIFACT" 2>&1; then
+      --report-type "$REPORT_TYPE" --output "$ARTIFACT" "${POLICY_ARGS[@]}" 2>&1; then
     uv run --project "$PRIVATE_PROJECT" automated-reviews report-metadata "$ARTIFACT"
     echo "Report validated and submitted to $ARTIFACT"
     exit 0
