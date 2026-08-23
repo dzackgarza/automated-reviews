@@ -8,12 +8,17 @@ Use a frozen case to compare model behavior against the same repository, prompt,
 ## Requirements
 
 - Linux on x86-64
+
 - [Git](https://git-scm.com/)
+
 - [uv](https://docs.astral.sh/uv/)
+
 - [Docker Engine](https://docs.docker.com/engine/)
+
 - Outbound HTTPS access for image downloads and model requests
 
-The project requires Python 3.14 or later. `uv` installs the required Python version when needed.
+The project requires Python 3.14 or later.
+`uv` installs the required Python version when needed.
 
 ## Installation
 
@@ -49,7 +54,8 @@ uv run automated-reviews replay \
   opencode-go/ox-alpha-free
 ```
 
-The first replay builds the pinned runner image. Later replays use the cached image.
+The first replay builds the pinned runner image.
+Later replays use the cached image.
 The command streams the model session and ends with an artifact path:
 
 ```text
@@ -78,12 +84,12 @@ uv run automated-reviews publish-workflows \
 The command creates:
 
 - `.github/workflows/review-pr.yml`
+
 - `.github/workflows/review-slop.yml`
 
 It stops if either file already exists.
 
-Available profiles are `python`, `bun`, `bun-playwright`, `bun-python`, `docs-and-configs`, `rust`, and `sage`.
-The generated workflows call this repository for LLM reviews.
+Available profiles are `python`, `bun`, `bun-playwright`, `bun-python`, `docs-and-configs`, `rust`, and `sage`. The generated workflows call this repository for LLM reviews.
 They call [`ai-review-ci`](https://github.com/dzackgarza/ai-review-ci) for deterministic QC.
 
 The GitHub workflows require read access to repository contents.
@@ -97,15 +103,17 @@ Change this value when the provider retires the model.
 
 ## Current limits
 
-The included replay corpus contains one diff-scoped slop-review case from `dzackgarza/sage-categories` pull request 3.
-The production review schema currently supports slop reviews.
+The included replay corpus contains one diff-scoped slop-review case from `dzackgarza/sage-categories` pull request 3. The production review schema currently supports slop reviews.
 Replay output stays under `.git/automated-reviews/artifacts/` and can contain complete model transcripts.
 
 ## Reference
 
 - [Frozen case manifest](cases/sage-categories-pr3-run32660872242/case.toml)
+
 - [Reusable review workflow](.github/workflows/_review.yml)
+
 - [Reusable issue-alignment workflow](.github/workflows/_issue-alignment.yml)
+
 - [`ai-review-ci`](https://github.com/dzackgarza/ai-review-ci) deterministic QC
 
 ## License
