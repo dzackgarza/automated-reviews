@@ -1,16 +1,36 @@
 # automated-reviews
 
-`automated-reviews` captures and replays automated code-review environments locally.
-It compares model behavior without changing the production review prompt.
+`automated-reviews` is the canonical source for LLM reviews.
 
-The production review contract remains in [`ai-review-ci`](https://github.com/dzackgarza/ai-review-ci).
-This repository owns frozen cases, replay control, captured model output, and human adjudication.
+It owns the production workflows, prompts, policy inputs, report schemas, runner, validation, delivery, model selection, frozen cases, and local replay.
+[`ai-review-ci`](https://github.com/dzackgarza/ai-review-ci) consumes the published workflow contract.
+It owns deterministic QC, hooks, profiles, gates, and branch protection.
+
+## Production model
+
+[`src/automated_reviews/data/reviewer.toml`](src/automated_reviews/data/reviewer.toml) selects the active model.
+Production passes this value to OpenCode for each run.
+Change this metadata when the provider retires the model.
+
+The current model is Ox Alpha: `opencode-go/ox-alpha-free`.
+
+## Published workflows
+
+- `.github/workflows/_review.yml` runs slop reviews.
+
+- `.github/workflows/_issue-alignment.yml` checks policy-owning issues.
+
+- `src/automated_reviews/templates/` contains downstream trigger workflows.
+
+The pull-request template calls deterministic workflows from `ai-review-ci`. It calls the LLM reviewer from this repository.
+
+The package exposes `publish-workflows` for downstream installation.
 
 ## Replay boundary
 
 Each case records the target revision, pull request, review-infrastructure revision, model, tool versions, reviewer context, and observed production run.
 
-A replay uses the same `ai-review-ci` preparation and review commands in a local disposable Docker runner.
+A replay uses the frozen production preparation and review commands in a local disposable Docker runner.
 The selected model is an outer test input.
 The model does not receive evaluation labels or adjudication data.
 

@@ -1,0 +1,10 @@
+{
+  "labels": [
+    {
+      "name": "needs-alignment-ruling",
+      "color": "d93f0b",
+      "description": "Alignment check flagged a proposal that may let a repo make a rule stand down",
+      "category": "status"
+    }
+  ]
+}

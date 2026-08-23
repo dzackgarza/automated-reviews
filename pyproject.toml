@@ -11,7 +11,9 @@ requires-python = ">=3.14"
 dependencies = [
   "cyclopts>=4.6.1",
   "pydantic>=2.12.5",
+  "sarif-pydantic>=0.6.2",
   "tomli-w>=1.2.0",
+  "unidiff>=0.7.5",
 ]
 
 [project.scripts]
@@ -20,6 +22,8 @@ automated-reviews = "automated_reviews.cli:app"
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
+    "pyyaml>=6.0.3",
+    "types-pyyaml>=6.0.12.20260815",
 ]
 
 [tool.uv.build-backend]

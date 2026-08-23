@@ -29,3 +29,26 @@ test-ci:
 # Run one frozen review through the local replay test.
 replay case model:
     uv run pytest -m replay tests/test_replay.py --replay-model {{model}} -vv -s
+
+# Publish downstream LLM review workflows into a repository.
+publish-workflows profile target="." review_ref="main" qc_ref="main":
+    uv run automated-reviews publish-workflows {{target}} --profile {{profile}} --review-ref {{review_ref}} --qc-ref {{qc_ref}}
+
+# Link the review-facing skills into the configured skill vault.
+install-skills:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ "${AI_SKILLS_DIR+x}" != x ]]; then
+        echo "ERROR: AI_SKILLS_DIR must be set."
+        exit 1
+    fi
+    mkdir -p "$AI_SKILLS_DIR"
+    for skill in "{{justfile_directory()}}"/skills/*; do
+        name="$(basename "$skill")"
+        target="$AI_SKILLS_DIR/$name"
+        if [[ -e "$target" && ! -L "$target" ]]; then
+            echo "ERROR: refusing to replace non-symlink skill: $target"
+            exit 1
+        fi
+        ln -snf "$skill" "$target"
+    done
