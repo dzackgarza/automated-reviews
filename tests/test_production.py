@@ -2,7 +2,8 @@ from pathlib import Path
 
 from automated_reviews.harness import OpencodeConfig, opencode_command
 from automated_reviews.metadata import load_review_metadata
-from automated_reviews.publication import workflow_text
+from automated_reviews.policy_index import skills_path
+from automated_reviews.publication import review_labels_text, workflow_text
 
 
 def test_active_model_controls_opencode_invocation() -> None:
@@ -35,3 +36,8 @@ def test_published_slop_workflow_uses_automated_reviews() -> None:
     text = workflow_text("review-slop.yml", profile="python", review_ref="release/v2", qc_ref="main")
 
     assert "dzackgarza/automated-reviews/.github/workflows/_review.yml@release/v2" in text
+
+
+def test_review_policy_and_labels_are_published_package_data() -> None:
+    assert (skills_path() / "policy-index" / "references" / "policies.md").is_file()
+    assert "needs-alignment-ruling" in review_labels_text()

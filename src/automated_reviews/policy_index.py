@@ -97,6 +97,11 @@ def skills_root() -> Traversable:
     return files("automated_reviews") / "resources" / "skills"
 
 
+def skills_path() -> Path:
+    """Return the installed canonical skill tree as a filesystem path."""
+    return Path(__file__).parent / "resources" / "skills"
+
+
 def _fail(message: str, *, error_code: str = "UNKNOWN") -> NoReturn:
     raise PolicyIndexError(message, error_code=error_code)
 

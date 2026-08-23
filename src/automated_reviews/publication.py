@@ -27,6 +27,11 @@ def issue_alignment_workflow_text(*, review_ref: str) -> str:
     return text.replace("{{ review_ref }}", review_ref)
 
 
+def review_labels_text() -> str:
+    """Return the canonical labels owned by the review system."""
+    return (files("automated_reviews") / "data" / "labels.json").read_text(encoding="utf-8")
+
+
 def publish_workflows(
     target: Path,
     *,
