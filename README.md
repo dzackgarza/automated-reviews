@@ -14,7 +14,18 @@ A replay uses the same `ai-review-ci` preparation and review commands on a new G
 The selected model is an outer workflow input.
 The model does not receive evaluation labels or adjudication data.
 
+The first case freezes the `sage-categories` PR 3 run that produced issue 5.
+GitHub retained the job log and review comments.
+The original runner did not retain its prompt file.
+The frozen reviewer context uses GitHub state from the original run boundary.
+Its manifest records this reconstruction and all artifact digests.
+
 ## Project interface
 
 Run `just` to list the supported operations.
 Use the `automated-reviews` CLI for case inspection and replay dispatch.
+
+```console
+uv run automated-reviews inspect cases/sage-categories-pr3-run32660872242
+uv run automated-reviews dispatch cases/sage-categories-pr3-run32660872242 --model opencode/nemotron-3-ultra-free
+```

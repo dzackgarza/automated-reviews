@@ -15,7 +15,13 @@ def test_pr3_case_builds_the_original_replay_specification() -> None:
         pull_request=3,
         base_ref="main",
         base_sha="6d91a14b704135c06906043ae0f83da529d0448f",
-        head_sha="7566eb20b1d996c92d63ac0dee371ddd8aee6e2b",
+        source_head_sha="7566eb20b1d996c92d63ac0dee371ddd8aee6e2b",
+        checkout_sha="c84f1a080a03c34a537edf92e86331823d39239b",
         infra_sha="c63800d106abab8e664daab4121d6d62a5bc6e71",
+        report_type="slop",
+        scope="diff",
         model="opencode/nemotron-3-ultra-free",
     )
+
+    assert case.reviewer_context_sha256 == "7509a96ab8c4bc626d403aaa1fa25cc830c8fec4c4f8de2f7cbefbaeeb04f19f"
+    assert case.observed_job_log_sha256 == "b4c2f7d907e59c9391faae2d3e257cace1263560d9eaab355508fc9844c7b949"

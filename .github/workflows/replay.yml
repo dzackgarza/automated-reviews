@@ -1,0 +1,159 @@
+name: Replay Review
+
+run-name: Replay ${{ inputs.case }} with ${{ inputs.model }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: Frozen review case
+        required: true
+        type: choice
+        options:
+          - sage-categories-pr3-run32660872242
+      model:
+        description: OpenCode model identifier
+        required: true
+        type: string
+        default: opencode/nemotron-3-ultra-free
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CASE_DIRECTORY: cases/${{ inputs.case }}
+      CONTROL_REPO: ${{ github.workspace }}/target
+      INFRA: ${{ github.workspace }}/infra
+      RESULT_DIRECTORY: ${{ github.workspace }}/results
+
+    steps:
+      - name: Check out replay laboratory
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Read frozen case
+        id: frozen
+        run: |
+          case_json="$(uv run automated-reviews inspect "$CASE_DIRECTORY")"
+          uv run automated-reviews inspect "$CASE_DIRECTORY" >/dev/null
+          {
+            echo "repository=$(jq -r .repository <<<"$case_json")"
+            echo "base_ref=$(jq -r .base_ref <<<"$case_json")"
+            echo "base_sha=$(jq -r .base_sha <<<"$case_json")"
+            echo "checkout_sha=$(jq -r .checkout_sha <<<"$case_json")"
+            echo "infra_sha=$(jq -r .infra_sha <<<"$case_json")"
+            echo "report_type=$(jq -r .report_type <<<"$case_json")"
+            echo "scope=$(jq -r .scope <<<"$case_json")"
+            echo "opencode_version=$(jq -r .opencode_version <<<"$case_json")"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Check out target revision
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.frozen.outputs.repository }}
+          ref: ${{ steps.frozen.outputs.checkout_sha }}
+          fetch-depth: 0
+          path: target
+          persist-credentials: false
+
+      - name: Check out review infrastructure
+        uses: actions/checkout@v4
+        with:
+          repository: dzackgarza/ai-review-ci
+          ref: ${{ steps.frozen.outputs.infra_sha }}
+          path: infra
+          persist-credentials: false
+
+      - name: Set up just
+        uses: extractions/setup-just@v4
+        with:
+          github-token: ${{ github.token }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Verify frozen source and context
+        run: |
+          test "$(git -C "$CONTROL_REPO" rev-parse HEAD)" = "${{ steps.frozen.outputs.checkout_sha }}"
+          test "$(git -C "$INFRA" rev-parse HEAD)" = "${{ steps.frozen.outputs.infra_sha }}"
+          git -C "$CONTROL_REPO" cat-file -e "${{ steps.frozen.outputs.base_sha }}^{commit}"
+          git -C "$CONTROL_REPO" update-ref "refs/remotes/origin/${{ steps.frozen.outputs.base_ref }}" "${{ steps.frozen.outputs.base_sha }}"
+          sha256sum --check <(printf '%s  %s\n' \
+            "$(uv run automated-reviews inspect "$CASE_DIRECTORY" | jq -r .reviewer_context_sha256)" \
+            "$CASE_DIRECTORY/reviewer-context.md")
+          cp "$CASE_DIRECTORY/reviewer-context.md" "$CONTROL_REPO/.reviewer-context.md"
+
+      - name: Install production review tools
+        run: env GITHUB_WORKSPACE="$CONTROL_REPO" just -f "$INFRA/ci/runner.just" install-tools
+
+      - name: Pin OpenCode version
+        run: |
+          bun add --global "opencode-ai@${{ steps.frozen.outputs.opencode_version }}"
+          sudo install "$(readlink -f "$HOME/.bun/bin/opencode")" /usr/local/bin/opencode
+          test "$(opencode --version)" = "${{ steps.frozen.outputs.opencode_version }}"
+
+      - name: Prepare production reviewer
+        run: env GITHUB_WORKSPACE="$CONTROL_REPO" just -f "$INFRA/ci/runner.just" prepare
+
+      - name: Select reviewer model outside the reviewer repository
+        env:
+          REPLAY_MODEL: ${{ inputs.model }}
+        run: |
+          jq --arg model "$REPLAY_MODEL" '.model = $model' \
+            /home/reviewer/.config/opencode/opencode.json >"$RUNNER_TEMP/opencode.json"
+          sudo install -o reviewer -g reviewer -m 0644 \
+            "$RUNNER_TEMP/opencode.json" /home/reviewer/.config/opencode/opencode.json
+          env GITHUB_WORKSPACE="$CONTROL_REPO" just -f "$INFRA/ci/runner.just" check-reviewer-model
+
+      - name: Stage frozen pull request diff
+        run: env GITHUB_WORKSPACE="$CONTROL_REPO" just -f "$INFRA/ci/runner.just" stage-pr-diff "${{ steps.frozen.outputs.base_ref }}"
+
+      - name: Run production review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          set -o pipefail
+          env GITHUB_WORKSPACE="$CONTROL_REPO" \
+            just -f "$INFRA/ci/runner.just" run-review \
+              "${{ steps.frozen.outputs.report_type }}" \
+              "${{ steps.frozen.outputs.scope }}" 2>&1 | tee "$RUNNER_TEMP/replay.log"
+
+      - name: Collect replay evidence
+        if: always()
+        run: |
+          mkdir -p "$RESULT_DIRECTORY"
+          cp "$RUNNER_TEMP/replay.log" "$RESULT_DIRECTORY/replay.log"
+          cp /home/reviewer/repo/.agents/review-runner/task.md "$RESULT_DIRECTORY/model-prompt.md"
+          if test -f /home/reviewer/repo/.agents/review-runner/candidates/submitted.json; then
+            cp /home/reviewer/repo/.agents/review-runner/candidates/submitted.json "$RESULT_DIRECTORY/submitted.json"
+          fi
+          if test -f /home/reviewer/repo/.review-report-artifact.json; then
+            cp /home/reviewer/repo/.review-report-artifact.json "$RESULT_DIRECTORY/report.json"
+          fi
+          uv run automated-reviews inspect "$CASE_DIRECTORY" >"$RESULT_DIRECTORY/case.json"
+          printf '%s\n' "${{ inputs.model }}" >"$RESULT_DIRECTORY/model.txt"
+
+      - name: Upload replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: replay-${{ inputs.case }}
+          path: results
+          if-no-files-found: error
+          retention-days: 90
