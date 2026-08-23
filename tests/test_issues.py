@@ -90,17 +90,17 @@ def test_context_issue_ledger_lines_render_states() -> None:
     assert _issue_ledger_lines("ai-review/slop", []) == []
 
 
-def test_review_workflow_gates_delivery_paths() -> None:
-    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "_review.yml").read_text())
+def test_slop_review_workflow_gates_delivery_paths() -> None:
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "_slop-review.yml").read_text())
     inputs = workflow[True]["workflow_call"]["inputs"]
     assert inputs["delivery"]["default"] == "sarif"
     assert inputs["parent_issue"]["type"] == "number"
 
-    steps = workflow["jobs"]["review"]["steps"]
+    steps = workflow["jobs"]["slop-review"]["steps"]
     by_name = {step.get("name"): step for step in steps}
     assert by_name["Convert report to SARIF"]["if"] == "inputs.delivery == 'sarif'"
-    assert by_name["Upload review findings"]["if"] == "inputs.delivery == 'sarif'"
+    assert by_name["Upload slop findings"]["if"] == "inputs.delivery == 'sarif'"
     publish = by_name["Publish findings to the issues ledger"]
     assert publish["if"] == "inputs.delivery == 'issues'"
     assert "publish-issues" in publish["run"]
-    assert workflow["jobs"]["review"]["permissions"]["issues"] == "write"
+    assert workflow["jobs"]["slop-review"]["permissions"]["issues"] == "write"

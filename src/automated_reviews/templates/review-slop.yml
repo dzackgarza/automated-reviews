@@ -5,13 +5,13 @@ name: Slop Review
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 8 * * 4'
+  - cron: '0 8 * * 4'
   push:
     branches: [main]
 
 jobs:
-  slop:
-    uses: dzackgarza/ai-review-ci/.github/workflows/_review.yml@{{ ref }}
+  slop-review:
+    uses: dzackgarza/automated-reviews/.github/workflows/_slop-review.yml@{{ review_ref }}
     permissions:
       contents: read
       security-events: write
@@ -19,5 +19,4 @@ jobs:
       pull-requests: write
       issues: write
     with:
-      report_type: slop
       scope: repo

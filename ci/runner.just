@@ -12,8 +12,8 @@ install-tools:
     bun add --global opencode-ai
     bun add --global cc-safety-net
 
-fetch-context tool_name pr_number:
-    uv run --project {{infra}} automated-reviews fetch-context \
+fetch-slop-context tool_name pr_number:
+    uv run --project {{infra}} automated-reviews fetch-slop-context \
       --repo "${GITHUB_REPOSITORY}" \
       --tool-names "{{tool_name}}" \
       --output "{{control_repo}}/.reviewer-context.md" \
@@ -121,7 +121,7 @@ stage-pr-diff base_ref:
       sudo chown reviewer:reviewer {{reviewer_repo}}/.reviewer-diff.patch; \
     fi
 
-run-review report_type scope:
+run-slop-review scope:
     sudo -u reviewer -H env \
       PATH="{{reviewer_home}}/bin:/usr/bin:/bin" \
       HOME="{{reviewer_home}}" \
@@ -129,7 +129,7 @@ run-review report_type scope:
       XDG_DATA_HOME="{{reviewer_home}}/.local/share" \
       XDG_STATE_HOME="{{reviewer_home}}/.local/state" \
       XDG_CACHE_HOME="{{reviewer_home}}/.cache" \
-      REPORT_TYPE="{{report_type}}" \
+      REPORT_TYPE="slop" \
       REVIEWER_REPO="{{reviewer_repo}}" \
       CONTROL_REPO="{{control_repo}}" \
       AI_REVIEW_OPENCODE_BIN="/usr/local/bin/opencode" \
@@ -137,14 +137,14 @@ run-review report_type scope:
       AI_REVIEW_MAX_ATTEMPTS="5" \
       AI_REVIEW_BACKOFF="5" \
       AI_REVIEW_POLICY_PATHS="${REVIEW_POLICY_PATHS:-}" \
-      AI_REVIEW_FOCUS_PROMPT="${REVIEW_FOCUS_PROMPT:-}" \
-      bash -lc 'cd {{reviewer_repo}} && /usr/local/bin/opencode --version && /usr/local/bin/uv run --project {{reviewer_infra}} automated-reviews run-review \
-        --template "{{reviewer_infra}}/reviews/{{report_type}}/template.md" \
+      AI_SLOP_REVIEW_FOCUS="${SLOP_REVIEW_FOCUS:-}" \
+      bash -lc 'cd {{reviewer_repo}} && /usr/local/bin/opencode --version && /usr/local/bin/uv run --project {{reviewer_infra}} automated-reviews run-slop-review \
+        --template "{{reviewer_infra}}/reviews/slop/template.md" \
         --scope "{{reviewer_infra}}/reviews/scope-{{scope}}.md" \
-        --manifest "{{reviewer_infra}}/reviews/{{report_type}}/manifest.txt" \
+        --manifest "{{reviewer_infra}}/reviews/slop/manifest.txt" \
         --reviewer-context .reviewer-context.md \
         --policy-paths "$AI_REVIEW_POLICY_PATHS" \
-        --focus-prompt "$AI_REVIEW_FOCUS_PROMPT"'
+        --slop-focus "$AI_SLOP_REVIEW_FOCUS"'
 
 collect-output:
     cp {{reviewer_repo}}/.review-report-artifact.json {{control_repo}}/.review-report-artifact.json

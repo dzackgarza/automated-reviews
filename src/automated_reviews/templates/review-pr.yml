@@ -1,4 +1,4 @@
-name: PR Review
+name: PR QC and Slop Review
 on:
   pull_request: {}
 jobs:
@@ -53,20 +53,9 @@ jobs:
     with:
       gate: pr-description-checklist
       profile: '{{ profile }}'
-  slop:
-    uses: dzackgarza/ai-review-ci/.github/workflows/_review.yml@{{ ref }}
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-      pull-requests: write
-      issues: write
-    with:
-      report_type: slop
-      scope: diff
   thread-resolution:
     needs:
-      - slop
+    - slop-review
     uses: dzackgarza/ai-review-ci/.github/workflows/_gates.yml@{{ ref }}
     permissions:
       contents: read
@@ -76,3 +65,13 @@ jobs:
     with:
       gate: thread-resolution
       profile: '{{ profile }}'
+  slop-review:
+    uses: dzackgarza/automated-reviews/.github/workflows/_slop-review.yml@{{ review_ref }}
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+      pull-requests: write
+      issues: write
+    with:
+      scope: diff

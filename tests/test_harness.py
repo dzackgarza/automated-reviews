@@ -62,6 +62,33 @@ def test_diff_scope_prompt_inlines_diff_and_skips_repo_docs(tmp_path: Path) -> N
     assert "run tree before every local exploration" not in prompt
 
 
+def test_repo_scope_prompt_contains_only_declared_slop_context(tmp_path: Path) -> None:
+    from automated_reviews.harness import build_initial_prompt
+
+    inputs = _prompt_inputs(tmp_path, "scope-repo.md")
+    inputs["template"].write_text("# Slop Reviewer\n\nOnly report named policy violations.\n")
+    inputs["scope"].write_text("Submit only specific policy violations.\n")
+    (inputs["repo"] / "README.md").write_text("repository overview\n")
+    (inputs["repo"] / "AGENTS.md").write_text("repository instructions\n")
+
+    prompt = build_initial_prompt(
+        inputs["template"],
+        inputs["scope"],
+        inputs["manifest"],
+        inputs["context"],
+        inputs["repo"],
+    )
+
+    assert prompt == "\n\n".join(
+        [
+            inputs["template"].read_text(),
+            inputs["context"].read_text(),
+            (inputs["repo"].parent / "reviews" / "manifest-doc.md").read_text(),
+            inputs["scope"].read_text(),
+        ]
+    )
+
+
 def test_real_diff_scope_prompt_names_submission_contract(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -94,6 +121,10 @@ def test_real_diff_scope_prompt_names_submission_contract(tmp_path: Path) -> Non
     )
     prompt = result.stdout
 
+    assert prompt.startswith("# Slop Reviewer\n")
+    assert prompt.rstrip().endswith(
+        "Submit only specific `POLICY.*` slop violations. Otherwise, submit an empty findings array."
+    )
     assert ".agents/review-runner/candidates/submitted.json" in prompt
     assert "/home/reviewer/bin/submit-candidate --help" in prompt
     assert "Then run `/home/reviewer/bin/submit-candidate`" in prompt
@@ -122,7 +153,7 @@ def _prompt_inputs(tmp_path: Path, scope_name: str) -> dict[str, Path]:
     return {"repo": repo, "scope": scope, "manifest": manifest, "context": context, "template": template}
 
 
-def test_policy_docs_and_focus_prompt_are_inlined(tmp_path: Path) -> None:
+def test_policy_docs_and_slop_focus_are_inlined(tmp_path: Path) -> None:
     from automated_reviews.harness import build_initial_prompt
 
     inputs = _prompt_inputs(tmp_path, "scope-repo.md")
@@ -138,16 +169,16 @@ def test_policy_docs_and_focus_prompt_are_inlined(tmp_path: Path) -> None:
         inputs["context"],
         inputs["repo"],
         policy_paths="# comment line\ndocs/STYLE.md\n\n",
-        focus_prompt="Focus on mathematical correctness of lattice invariants.",
+        slop_focus="Inspect proof paths for lattice-invariant policy violations.",
     )
 
-    assert "## Repository Review Focus" in prompt
-    assert "Focus on mathematical correctness of lattice invariants." in prompt
+    assert "## Repository Slop Focus" in prompt
+    assert "cannot authorize generic code-review findings" in prompt
+    assert "Inspect proof paths for lattice-invariant policy violations." in prompt
     assert "### Policy document: docs/STYLE.md" in prompt
     assert "terminology must match the drift dictionary" in prompt
     # Declared policy docs and focus text precede the task template.
-    assert prompt.index("Focus on mathematical correctness") < prompt.index("write submitted.json")
-    assert prompt.index("terminology must match") < prompt.index("write submitted.json")
+    assert prompt.index("Inspect proof paths") < prompt.index("terminology must match")
 
 
 def test_policy_docs_are_inlined_even_in_diff_scope(tmp_path: Path) -> None:
@@ -168,12 +199,12 @@ def test_policy_docs_are_inlined_even_in_diff_scope(tmp_path: Path) -> None:
         inputs["context"],
         inputs["repo"],
         policy_paths="POLICY.md",
-        focus_prompt="",
+        slop_focus="",
     )
 
     assert "declared policy content" in prompt
     assert "auto-collected repo overview" not in prompt
-    assert "## Repository Review Focus" not in prompt
+    assert "## Repository Slop Focus" not in prompt
 
 
 def test_context_packet_is_inlined_with_prompt_first(tmp_path: Path) -> None:
@@ -182,7 +213,7 @@ def test_context_packet_is_inlined_with_prompt_first(tmp_path: Path) -> None:
     inputs = _prompt_inputs(tmp_path, "scope-repo.md")
     packet = inputs["repo"] / ".review-context"
     (packet / "policies").mkdir(parents=True)
-    (packet / "PROMPT.md").write_text("Review focus: lattice invariants against the spec.\n")
+    (packet / "SLOP_FOCUS.md").write_text("Inspect proof paths around lattice invariants.\n")
     (packet / "policies" / "terminology.md").write_text("saturation and discriminant triple are distinct terms\n")
     (packet / "fixtures.json").write_text("{}\n")
 
@@ -194,14 +225,12 @@ def test_context_packet_is_inlined_with_prompt_first(tmp_path: Path) -> None:
         inputs["repo"],
     )
 
-    assert "## Repository Review Packet" in prompt
-    assert "Review focus: lattice invariants against the spec." in prompt
-    assert "### Review packet document: policies/terminology.md" in prompt
+    assert "## Repository Slop Context" in prompt
+    assert "Inspect proof paths around lattice invariants." in prompt
+    assert "### Slop context document: policies/terminology.md" in prompt
     assert "saturation and discriminant triple are distinct terms" in prompt
     assert "- .review-context/fixtures.json" in prompt
-    # PROMPT.md leads the packet section, before the inlined documents.
-    assert prompt.index("Review focus: lattice invariants") < prompt.index("### Review packet document:")
-    assert prompt.index("## Repository Review Packet") < prompt.index("write submitted.json")
+    assert prompt.index("Inspect proof paths around lattice invariants") < prompt.index("### Slop context document:")
 
 
 def test_absent_context_packet_adds_nothing_and_empty_packet_is_fatal(tmp_path: Path) -> None:
@@ -215,7 +244,7 @@ def test_absent_context_packet_adds_nothing_and_empty_packet_is_fatal(tmp_path: 
         inputs["context"],
         inputs["repo"],
     )
-    assert "## Repository Review Packet" not in prompt
+    assert "## Repository Slop Context" not in prompt
 
     # A staged-but-empty packet is a broken assembly, not a valid no-op.
     (inputs["repo"] / ".review-context").mkdir()
@@ -223,20 +252,20 @@ def test_absent_context_packet_adds_nothing_and_empty_packet_is_fatal(tmp_path: 
         context_packet_section(inputs["repo"])
 
 
-def test_review_workflow_stages_context_packet_conditionally() -> None:
-    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "_review.yml").read_text())
+def test_slop_review_workflow_stages_context_packet_conditionally() -> None:
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "_slop-review.yml").read_text())
     inputs = workflow[True]["workflow_call"]["inputs"]
     assert inputs["context_archive"]["type"] == "string"
     assert inputs["context_archive"]["default"] == ""
 
-    steps = workflow["jobs"]["review"]["steps"]
-    stage = next(step for step in steps if step.get("name") == "Stage review context packet")
+    steps = workflow["jobs"]["slop-review"]["steps"]
+    stage = next(step for step in steps if step.get("name") == "Stage slop context packet")
     assert stage["if"] == "inputs.context_archive != ''"
     assert "stage-context-packet" in stage["run"]
     # The packet is staged after prepare (which rsyncs the reviewer repo copy)
     # and before the review runs, so the exploded tree survives into the run.
     names = [step.get("name") for step in steps]
-    assert names.index("Prepare reviewer") < names.index("Stage review context packet") < names.index("Run review")
+    assert names.index("Prepare slop reviewer") < names.index("Stage slop context packet") < names.index("Run slop review")
 
 
 def test_missing_policy_doc_is_fatal(tmp_path: Path) -> None:
@@ -249,22 +278,23 @@ def test_missing_policy_doc_is_fatal(tmp_path: Path) -> None:
         policy_docs_section("docs/DOES_NOT_EXIST.md", repo)
 
 
-def test_review_workflow_advisory_skips_only_enforcement() -> None:
+def test_slop_review_workflow_advisory_skips_only_enforcement() -> None:
     # Advisory mode must not let findings determine the workflow conclusion,
     # while every infrastructure step still runs and can fail the run.
-    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "_review.yml").read_text())
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" / "_slop-review.yml").read_text())
     inputs = workflow[True]["workflow_call"]["inputs"]
 
     assert inputs["advisory"]["type"] == "boolean"
     assert inputs["advisory"]["default"] is False
     assert inputs["policy_paths"]["type"] == "string"
-    assert inputs["focus_prompt"]["type"] == "string"
+    assert inputs["slop_focus"]["type"] == "string"
+    assert "report_type" not in inputs
 
-    steps = workflow["jobs"]["review"]["steps"]
-    enforce = next(step for step in steps if step.get("name") == "Enforce review status")
+    steps = workflow["jobs"]["slop-review"]["steps"]
+    enforce = next(step for step in steps if step.get("name") == "Enforce slop review status")
     assert enforce["if"] == "${{ !inputs.advisory }}"
     guarded = [step["name"] for step in steps if "if" in step and "!inputs.advisory" in str(step["if"])]
-    assert guarded == ["Enforce review status"]
+    assert guarded == ["Enforce slop review status"]
 
 
 def test_retry_prompt_uses_absolute_submit_candidate_path(tmp_path: Path) -> None:
@@ -398,7 +428,7 @@ def _write_review_inputs(repo: Path) -> dict[str, Path]:
     return {"template": template, "scope": scope, "manifest": manifest, "context": context}
 
 
-def test_run_review_final_fatal_reflects_only_last_attempt_outcome(tmp_path: Path) -> None:
+def test_run_slop_review_final_fatal_reflects_only_last_attempt_outcome(tmp_path: Path) -> None:
     # Regression lock for the last_timeout reset (commit 47a605b): attempt 1 times out,
     # attempt 2 fails by producing no artifact (no timeout). The terminal FATAL must
     # report ONLY the final attempt's outcome — a missing artifact — not the earlier
@@ -433,7 +463,7 @@ def test_run_review_final_fatal_reflects_only_last_attempt_outcome(tmp_path: Pat
         [
             sys.executable,
             "-c",
-            ("import sys; from pathlib import Path; from automated_reviews.harness import run_review; run_review(*(Path(arg) for arg in sys.argv[1:]))"),
+            ("import sys; from pathlib import Path; from automated_reviews.harness import run_slop_review; run_slop_review(*(Path(arg) for arg in sys.argv[1:]))"),
             str(inputs["template"]),
             str(inputs["scope"]),
             str(inputs["manifest"]),

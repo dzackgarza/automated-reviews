@@ -316,8 +316,8 @@ class SlopFinding(BaseModel):
         "validation-evasion, defaults-and-fallbacks, proof-laundering, workflow, "
         "ci-pipeline, config.",
     )
-    policy_code: str | None = Field(
-        description="Explicit POLICY.* code for the bridge-burning obligation this finding weakens; use null when no policy applies.",
+    policy_code: str = Field(
+        description="Required POLICY.* code for the exact policy-index obligation this slop finding weakens.",
     )
     location: Location = Field(description="File and line range where the slop pattern occurs.")
     violated_invariant: str = Field(

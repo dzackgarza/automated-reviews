@@ -246,6 +246,16 @@ def test_report_rejects_unknown_policy_code(checkout: Path) -> None:
         SlopReport.model_validate(raw)
 
 
+def test_slop_finding_requires_policy_code(checkout: Path) -> None:
+    missing = slop_finding()
+    del missing["policy_code"]
+
+    with pytest.raises(ValidationError):
+        SlopReport.model_validate(slop_candidate(findings=[missing]))
+    with pytest.raises(ValidationError):
+        SlopReport.model_validate(slop_candidate(findings=[slop_finding(policy_code=None)]))
+
+
 def test_slop_report_rejects_finding_authored_remediation(checkout: Path) -> None:
     remediation_code = canonical_route("POLICY.NO_MOCK_PROOF").remediation_code
     raw = slop_candidate(

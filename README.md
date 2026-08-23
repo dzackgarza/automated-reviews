@@ -1,9 +1,9 @@
 # automated-reviews
 
-`automated-reviews` runs production LLM code reviews and replays captured CI environments locally.
+`automated-reviews` runs policy-index slop reviews and replays captured CI environments locally.
 It publishes reusable GitHub workflows and keeps the active reviewer model in one metadata file.
 
-Use a frozen case to compare model behavior against the same repository, prompt, tools, and reviewer context.
+Use a frozen case to compare slop-review behavior against the same repository, prompt, tools, and context.
 
 ## Requirements
 
@@ -37,7 +37,7 @@ opencode-go/ox-alpha-free
 
 Run `uv run automated-reviews --help` for the complete command list.
 
-## Replay a frozen review
+## Replay a frozen slop review
 
 Inspect the included case:
 
@@ -69,12 +69,12 @@ The case supplies the exact target checkout, review infrastructure, tool version
 The reviewer cannot fetch source or review infrastructure during replay.
 OpenCode still contacts the selected model provider.
 
-## Publish review workflows
+## Publish slop-review workflows
 
-Write the review triggers into a target repository:
+Write the slop-review triggers into a target repository:
 
 ```bash
-uv run automated-reviews publish-workflows \
+uv run automated-reviews publish-slop-workflows \
   /path/to/repository \
   --profile python \
   --review-ref main \
@@ -89,7 +89,7 @@ The command creates:
 
 It stops if either file already exists.
 
-Available profiles are `python`, `bun`, `bun-playwright`, `bun-python`, `docs-and-configs`, `rust`, and `sage`. The generated workflows call this repository for LLM reviews.
+Available profiles are `python`, `bun`, `bun-playwright`, `bun-python`, `docs-and-configs`, `rust`, and `sage`. The generated workflows call this repository for policy-index slop reviews.
 They call [`ai-review-ci`](https://github.com/dzackgarza/ai-review-ci) for deterministic QC.
 
 The GitHub workflows require read access to repository contents.
@@ -110,7 +110,7 @@ Replay output stays under `.git/automated-reviews/artifacts/` and can contain co
 
 - [Frozen case manifest](cases/sage-categories-pr3-run32660872242/case.toml)
 
-- [Reusable review workflow](.github/workflows/_review.yml)
+- [Reusable slop-review workflow](.github/workflows/_slop-review.yml)
 
 - [Reusable issue-alignment workflow](.github/workflows/_issue-alignment.yml)
 

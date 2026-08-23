@@ -5,23 +5,23 @@ from pathlib import Path
 from cyclopts import App
 from pydantic import validate_call
 
-from automated_reviews.context import fetch_context
+from automated_reviews.context import fetch_slop_context
 from automated_reviews.fixtures import load_case
-from automated_reviews.harness import run_review
+from automated_reviews.harness import run_slop_review
 from automated_reviews.issue_alignment import check_issue_alignment
 from automated_reviews.issues import publish_issues
 from automated_reviews.metadata import load_review_metadata
 from automated_reviews.models import ModelId
-from automated_reviews.publication import publish_workflows
+from automated_reviews.publication import publish_slop_workflows
 from automated_reviews.replay import replay_case
 from automated_reviews.report import enforce_report_status, report_metadata, report_schema, validate_report
 from automated_reviews.sarif import to_sarif
 from automated_reviews.threads import post_threads
 
-app = App(help="Run, publish, inspect, and replay automated reviews.")
+app = App(help="Run, publish, inspect, and replay automated slop reviews.")
 
-app.command(fetch_context)
-app.command(run_review)
+app.command(fetch_slop_context)
+app.command(run_slop_review)
 app.command(validate_report)
 app.command(report_schema)
 app.command(report_metadata)
@@ -30,12 +30,12 @@ app.command(to_sarif)
 app.command(post_threads)
 app.command(publish_issues, name="publish-issues")
 app.command(check_issue_alignment, name="check-issue-alignment")
-app.command(publish_workflows)
+app.command(publish_slop_workflows)
 
 
 @app.command
 def active_model() -> None:
-    """Print the active production reviewer model."""
+    """Print the active production slop-review model."""
     print(load_review_metadata().model)
 
 

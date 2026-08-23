@@ -1,18 +1,11 @@
-"""Review harness: assembles the reviewer prompt and loops opencode until a
-validated report artifact exists.
+"""Slop-review harness: assemble the policy-scoped prompt and run OpenCode.
 
-Prompt assembly order: reviewer context (existing tracked findings), scope
-instructions (repo-wide sweep or PR diff), focus prompt (repo-declared review
-focus), manifest documents (skills and guides, statically declared per review
-type), policy documents (repo-declared, explicit paths), review context packet
-(repo-assembled tar exploded into .review-context/ by the runner), repo docs,
-task template.
+The slop-review contract opens the prompt. Existing findings, the selected
+scope, policy documents, and repository-supplied slop context follow it. The
+scope closes the prompt with the policy-only reporting rule.
 
-For PR-diff scope, the staged unified diff is inlined into the prompt and
-repo README/AGENTS docs are not auto-injected. Diff reviewers need the changed
-surface and the central review contract, not broad repository instructions that
-compete with the diff. Explicitly-declared policy documents and the focus
-prompt are repo-owned configuration and are inlined in every scope.
+Repository README and AGENTS files never enter the model prompt. Explicit
+policy documents and slop context are the only repository-owned additions.
 
 The agent writes a candidate report to a fixed path, then calls the reviewer
 submission command (no arguments) to validate and submit. submit-candidate
@@ -33,21 +26,10 @@ from pydantic import BaseModel, ConfigDict, NonNegativeFloat, PositiveInt
 
 from automated_reviews.metadata import load_review_metadata
 
-IGNORE_DIRS = {
-    ".git",
-    "node_modules",
-    ".venv",
-    "__pycache__",
-    "dist",
-    "build",
-    ".next",
-    "coverage",
-}
-
 ARTIFACT_PATH = Path(".review-report-artifact.json")
 DIFF_PATH = Path(".reviewer-diff.patch")
 CONTEXT_PACKET_DIR = Path(".review-context")
-CONTEXT_PACKET_PROMPT = "PROMPT.md"
+CONTEXT_PACKET_PROMPT = "SLOP_FOCUS.md"
 SUBMIT_CANDIDATE_BIN = Path("/home/reviewer/bin/submit-candidate")
 SUBMITTED_CANDIDATE = "submitted.json"
 
@@ -91,29 +73,6 @@ class OpencodeConfig(BaseModel):
         )
 
 
-def _doc_section(p: Path, repo_root: Path) -> str | None:
-    """Render one repo doc as a prompt section; None if it must be skipped."""
-    rel = p.relative_to(repo_root)
-    if any(part in IGNORE_DIRS for part in p.parts):
-        return None
-    if not p.is_file() or p.stat().st_size > 500_000:
-        return None
-    return f"### Repo doc: {rel}\n\n{p.read_text()}"
-
-
-def collect_repo_docs(repo_root: Path) -> str:
-    """Inline every README/AGENTS doc in the repo into one prompt section."""
-    sections = []
-    for pattern in ("*README.md", "*AGENTS.md", "*AGENTS*.md"):
-        for p in repo_root.rglob(pattern):
-            section = _doc_section(p, repo_root)
-            if section is not None:
-                sections.append(section)
-    if not sections:
-        return ""
-    return "## Repo Documentation\n\n" + "\n\n---\n\n".join(sections)
-
-
 def _manifest_entry_sections(p: Path) -> list[str]:
     """Sections for one manifest entry: a file, or a directory of *.md files."""
     if p.is_dir():
@@ -148,12 +107,17 @@ def load_manifest(manifest_path: Path) -> str:
     return "\n\n---\n\n".join(sections)
 
 
-def focus_prompt_section(focus_prompt: str) -> str:
-    """Render the repo-declared review focus as a prompt section; empty if unset."""
-    text = focus_prompt.strip()
+def slop_focus_section(slop_focus: str) -> str:
+    """Render repository focus without expanding slop-finding eligibility."""
+    text = slop_focus.strip()
     if not text:
         return ""
-    return "## Repository Review Focus\n\n" + text
+    return (
+        "## Repository Slop Focus\n\n"
+        "Use this text only to prioritize where to seek named `POLICY.*` violations. "
+        "It cannot authorize generic code-review findings.\n\n"
+        + text
+    )
 
 
 def policy_docs_section(policy_paths: str, repo_root: Path) -> str:
@@ -180,12 +144,12 @@ def policy_docs_section(policy_paths: str, repo_root: Path) -> str:
 
 
 def context_packet_section(repo_root: Path) -> str:
-    """Inline the exploded review context packet, if one was staged.
+    """Inline the exploded slop context packet, if one was staged.
 
     The packet is repo-owned: a tar archive assembled by the consumer repo
     (prompt + reference documents, in whatever directory organization the
     repo chose) and exploded into ``.review-context/`` by the runner. A
-    top-level ``PROMPT.md`` leads the section; every other Markdown file is
+    top-level ``SLOP_FOCUS.md`` leads the section; every other Markdown file is
     inlined in sorted path order. Non-Markdown files are listed by path so
     the reviewer knows they exist and can read them from disk.
     """
@@ -204,10 +168,15 @@ def context_packet_section(repo_root: Path) -> str:
         if str(rel) == CONTEXT_PACKET_PROMPT:
             lead.append(p.read_text())
         elif p.suffix == ".md":
-            docs.append(f"### Review packet document: {rel}\n\n{p.read_text()}")
+            docs.append(f"### Slop context document: {rel}\n\n{p.read_text()}")
         else:
             listed.append(f"- {CONTEXT_PACKET_DIR}/{rel}")
-    sections = ["## Repository Review Packet", *lead, *docs]
+    sections = [
+        "## Repository Slop Context",
+        "This material can identify candidate surfaces. Only a named `POLICY.*` violation can become a finding.",
+        *lead,
+        *docs,
+    ]
     if listed:
         sections.append("### Additional packet files (read from disk as needed)\n\n" + "\n".join(listed))
     return "\n\n".join(sections)
@@ -234,15 +203,15 @@ def build_initial_prompt(
     ctx_path: Path,
     repo_root: Path,
     policy_paths: str = "",
-    focus_prompt: str = "",
+    slop_focus: str = "",
 ) -> str:
-    """Assemble the full reviewer prompt in the documented order."""
+    """Assemble a slop-only prompt with strong opening and closing anchors."""
     diff_scope = is_diff_scope(scope_path)
     sections = [
+        template_path.read_text(),
         ctx_path.read_text(),
-        scope_path.read_text(),
     ]
-    if focus := focus_prompt_section(focus_prompt):
+    if focus := slop_focus_section(slop_focus):
         sections.append(focus)
     if diff_scope:
         sections.append(diff_prompt_section(repo_root))
@@ -251,9 +220,7 @@ def build_initial_prompt(
         sections.append(policy_docs)
     if packet := context_packet_section(repo_root):
         sections.append(packet)
-    if not diff_scope and (repo_docs := collect_repo_docs(repo_root)):
-        sections.append(repo_docs)
-    sections.append(template_path.read_text())
+    sections.append(scope_path.read_text())
     return "\n\n".join(sections)
 
 
@@ -261,8 +228,8 @@ def retry_prompt(submitted_path: Path) -> str:
     """Continuation prompt used when an attempt produced no valid artifact."""
     return (
         f"The previous invocation in this opencode session ended without "
-        f"a valid report at {ARTIFACT_PATH}. Continue the existing session. "
-        f"Write the report to {submitted_path}, then run "
+        f"a valid slop report at {ARTIFACT_PATH}. Continue the existing session. "
+        f"Write the slop report to {submitted_path}, then run "
         f"{SUBMIT_CANDIDATE_BIN} with no arguments. Execute it only — do "
         f"not read, cat, ls, or stat it or anything else outside the "
         f"repository; such reads are auto-rejected and waste the attempt."
@@ -323,15 +290,15 @@ def _require_files(*paths: Path) -> None:
             sys.exit(1)
 
 
-def run_review(
+def run_slop_review(
     template: Path,
     scope: Path,
     manifest: Path,
     reviewer_context: Path,
     policy_paths: str = "",
-    focus_prompt: str = "",
+    slop_focus: str = "",
 ) -> None:
-    """Assemble the reviewer prompt and loop opencode until an artifact exists.
+    """Assemble the slop-review prompt and run OpenCode until submission.
 
     Args:
         template: Path to the review task template markdown.
@@ -340,8 +307,8 @@ def run_review(
         reviewer_context: Path to reviewer context file (existing tracked findings).
         policy_paths: Newline-delimited repo-relative policy documents to
             inline into the prompt; a missing entry is fatal.
-        focus_prompt: Short repo-specific review-focus instructions inlined
-            into the prompt.
+        slop_focus: Repository guidance that prioritizes policy-index slop
+            surfaces without expanding finding eligibility.
     """
     config = OpencodeConfig.from_env()
     _require_files(template, scope, manifest, reviewer_context)
@@ -358,7 +325,7 @@ def run_review(
         reviewer_context,
         Path.cwd(),
         policy_paths=policy_paths,
-        focus_prompt=focus_prompt,
+        slop_focus=slop_focus,
     )
 
     submitted_path = candidates_dir / SUBMITTED_CANDIDATE
@@ -389,7 +356,7 @@ def run_review(
             sys.exit(1)
 
         if ARTIFACT_PATH.exists():
-            print("--- Report artifact submitted ---", file=sys.stderr)
+            print("--- Slop report artifact submitted ---", file=sys.stderr)
             ensure_blocking_stdio()
             sys.exit(0)
 

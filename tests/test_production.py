@@ -28,14 +28,14 @@ def test_active_model_controls_opencode_invocation() -> None:
 def test_published_pr_workflow_uses_each_canonical_owner() -> None:
     text = workflow_text("review-pr.yml", profile="python", review_ref="main", qc_ref="main")
 
-    assert "dzackgarza/automated-reviews/.github/workflows/_review.yml@main" in text
+    assert "dzackgarza/automated-reviews/.github/workflows/_slop-review.yml@main" in text
     assert "dzackgarza/ai-review-ci/.github/workflows/_qc.yml@main" in text
 
 
 def test_published_slop_workflow_uses_automated_reviews() -> None:
     text = workflow_text("review-slop.yml", profile="python", review_ref="release/v2", qc_ref="main")
 
-    assert "dzackgarza/automated-reviews/.github/workflows/_review.yml@release/v2" in text
+    assert "dzackgarza/automated-reviews/.github/workflows/_slop-review.yml@release/v2" in text
 
 
 def test_review_policy_and_labels_are_published_package_data() -> None:

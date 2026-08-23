@@ -1,4 +1,4 @@
-"""Local replays through the frozen production reviewer."""
+"""Local replays through the frozen production slop reviewer."""
 
 from pathlib import Path
 
@@ -12,7 +12,7 @@ CASE = Path("cases/sage-categories-pr3-run32660872242")
 
 @pytest.mark.replay
 def test_sage_categories_pr3_review_runs_in_local_runner(replay_model: ModelId) -> None:
-    """The local runner must capture the real reviewer's observable behavior."""
+    """The local runner must capture the slop reviewer's observable behavior."""
     result = replay_case(CASE, replay_model)
 
     assert result.exit_code == 0

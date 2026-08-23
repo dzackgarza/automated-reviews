@@ -35,7 +35,7 @@ def slop_finding(**overrides: JsonValue) -> JsonDict:
         "tier": "tier1",
         "label": "SLOP",
         "category": "bridge-burning",
-        "policy_code": None,
+        "policy_code": "POLICY.NO_ERROR_DISCARD",
         "location": {"path": APP_FILE, "start_line": 2, "end_line": 4},
         "violated_invariant": "Every error path fails loudly, but this code substitutes a synthetic default on failure",
         "proof_command": "rg '2>/dev/null' src/app.py",

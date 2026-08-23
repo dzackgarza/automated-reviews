@@ -1,18 +1,20 @@
-# Review Scope: Repository-Wide Sweep
+# Slop Review Scope: Repository-Wide Sweep
 
-You are performing a FRESH, COMPREHENSIVE REPOSITORY AUDIT. Scan the ENTIRE repository source tree — do NOT limit analysis to recent commits or diffs.
-Analyze all files as if this were a day-zero audit of a new codebase.
+Perform a fresh repository-wide slop review.
+Inspect the source tree only for specific violations of the loaded `POLICY.*` records.
 
 Coverage strategy:
 
 1. Run `tree -L 3` to understand the directory layout.
 
-2. Identify hotspots: most-churned files, oldest untouched files, recently modified files.
+2. Identify source, test, workflow, configuration, and documentation surfaces covered by the policy index.
 
-3. Read key configs, docs, and justfile commands.
+3. Inspect candidate red flags against their complete local control flow.
 
-4. Read source code from high-churn and old files.
+4. Report only violations supported by a specific policy code and repository evidence.
 
 EXCEPTION: the reviewer context above lists findings already tracked for this repository.
 Open code scanning alerts are carried forward into the next SARIF upload by automation.
 Do NOT duplicate them in your report unless you have new evidence, the problem reappears in a materially different form, or the previous resolution is directly contradicted by the current code.
+
+Submit only specific `POLICY.*` slop violations. Otherwise, submit an empty findings array.

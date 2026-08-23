@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 name = "automated-reviews"
 version = "0.1.0"
-description = "Capture and replay automated code-review environments"
+description = "Run and replay policy-index slop reviews"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -33,4 +33,4 @@ module-root = "src"
 
 [tool.pytest.ini_options]
 addopts = "-m 'not replay'"
-markers = ["replay: run the production reviewer in the frozen local runner"]
+markers = ["replay: run the production slop reviewer in the frozen local runner"]

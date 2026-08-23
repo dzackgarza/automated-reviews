@@ -1,8 +1,8 @@
 # Agent instructions
 
-This repository owns the complete LLM review system.
+This repository owns the complete LLM slop-review system.
 
-It owns production workflows, prompts, policy inputs, report schemas, the review
+It owns production workflows, prompts, policy inputs, report schemas, the slop-review
 runner, validation, delivery, model selection, and frozen replay.
 `dzackgarza/ai-review-ci` consumes the published workflow contract.
 It remains the owner of deterministic QC, hooks, profiles, and branch protection.
@@ -21,7 +21,7 @@ Use one case manifest as the source of replay identity. Store bespoke
 configuration in TOML. Validate it with the package Pydantic models.
 
 `src/automated_reviews/data/reviewer.toml` selects the production model.
-Production review commands must read this file. Do not copy the model identifier
+Production slop-review commands must read this file. Do not copy the model identifier
 into workflows, prompts, OpenCode configuration, or runner scripts.
 
 Publish downstream workflows from `src/automated_reviews/templates/`.
