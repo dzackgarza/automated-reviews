@@ -47,4 +47,5 @@ Cross-reference the **claimed boundary obligation** (which issue the PR marks sa
 Do not accept the green CI / passing test surface as proof when the claim map names a boundary the evidence does not cross.
 The slop reviewer's job is to flag the policy violation in that mismatch.
 
-Submit only specific `POLICY.*` slop violations. Otherwise, submit an empty findings array.
+Submit only specific `POLICY.*` slop violations.
+Otherwise, submit an empty findings array.

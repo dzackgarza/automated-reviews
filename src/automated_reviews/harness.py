@@ -113,10 +113,7 @@ def slop_focus_section(slop_focus: str) -> str:
     if not text:
         return ""
     return (
-        "## Repository Slop Focus\n\n"
-        "Use this text only to prioritize where to seek named `POLICY.*` violations. "
-        "It cannot authorize generic code-review findings.\n\n"
-        + text
+        "## Repository Slop Focus\n\nUse this text only to prioritize where to seek named `POLICY.*` violations. It cannot authorize generic code-review findings.\n\n" + text
     )
 
 

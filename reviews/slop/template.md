@@ -129,7 +129,8 @@ Key rules every finding must satisfy:
   Not a file path — the actual command output or code flow that demonstrates the failure.
 
 - `policy_code`: the required vendored `POLICY.*` ID for the exact obligation being weakened.
-  Every finding requires one. Do not invent IDs and do not write remediation prose.
+  Every finding requires one.
+  Do not invent IDs and do not write remediation prose.
   Do not emit a remediation code; deterministic rendering derives it from the canonical policy record after validation.
 
 - All seven slop-specific narrative fields (`pattern`, `task_narrative`, `slop_narrative`, `why_it_matters`, `user_surprise`, `existential_justification`, `failure_mode`).

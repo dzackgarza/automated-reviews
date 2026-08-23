@@ -17,4 +17,5 @@ EXCEPTION: the reviewer context above lists findings already tracked for this re
 Open code scanning alerts are carried forward into the next SARIF upload by automation.
 Do NOT duplicate them in your report unless you have new evidence, the problem reappears in a materially different form, or the previous resolution is directly contradicted by the current code.
 
-Submit only specific `POLICY.*` slop violations. Otherwise, submit an empty findings array.
+Submit only specific `POLICY.*` slop violations.
+Otherwise, submit an empty findings array.

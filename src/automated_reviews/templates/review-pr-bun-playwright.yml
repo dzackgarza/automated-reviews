@@ -65,7 +65,7 @@ jobs:
       profile: '{{ profile }}'
   thread-resolution:
     needs:
-    - slop-review
+      - slop-review
     uses: dzackgarza/ai-review-ci/.github/workflows/_gates.yml@{{ ref }}
     permissions:
       contents: read
