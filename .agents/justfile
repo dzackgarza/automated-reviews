@@ -1,0 +1,6 @@
+# Agent-only diagnostics for automated-reviews.
+
+[private]
+_inspect-case case:
+    uv run automated-reviews inspect "{{case}}"
+
