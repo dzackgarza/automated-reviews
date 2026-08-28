@@ -146,7 +146,9 @@ def test_render_thread_body_includes_structured_reviewer_identity() -> None:
     body = render_thread_body(finding, "Slop Review", "b" * 64)
 
     marker = (
-        '<!-- ai-review-reviewer: {"agent": "opencode-ai", "model": "opencode/nemotron-3-ultra-free", "prompt_id": "reviews/slop", "prompt_version": "1.0.0", "type": "slop"} -->'
+        '<!-- ai-review-reviewer: {"agent": "opencode-ai", '
+        '"model": "opencode/nemotron-3-ultra-free", "prompt_id": "reviews/slop", '
+        '"prompt_version": "1.0.0", "type": "slop"} -->'
     )
     assert marker in body
     assert ("**Reviewer identity:** `type=slop; agent=opencode-ai; model=opencode/nemotron-3-ultra-free; prompt_id=reviews/slop; prompt_version=1.0.0`") in body
