@@ -7,10 +7,27 @@ reviewer_repo := "/home/reviewer/repo"
 reviewer_infra := "/home/reviewer/.review/infra"
 private_tools := "/opt/automated-reviews/private"
 
+bun_install := "/opt/bun"
+
+# Every tool the reviewer reaches by absolute path installs system-wide. The
+# reviewer user runs with PATH=/home/reviewer/bin:/usr/bin:/bin, so a binary
+# left in the runner user's own bun directory is one the reviewer can neither
+# find nor read.
 install-tools:
+    #!/usr/bin/env bash
+    set -euo pipefail
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
-    bun add --global opencode-ai
-    bun add --global cc-safety-net
+    sudo mkdir -p {{bun_install}}
+    sudo chown "$(id -u):$(id -g)" {{bun_install}}
+    BUN_INSTALL={{bun_install}} bun add --global opencode-ai
+    BUN_INSTALL={{bun_install}} bun add --global cc-safety-net
+    # bun links its global binaries relatively into ../install/global, so the
+    # whole tree has to be traversable, not just the bin directory.
+    sudo chmod -R a+rX {{bun_install}}
+    sudo ln -sfn {{bun_install}}/bin/opencode /usr/local/bin/opencode
+    # Prove the reviewer's opencode runs here rather than 75 seconds later in
+    # check-reviewer-model, where a missing binary reads as a model problem.
+    /usr/local/bin/opencode --version
 
 fetch-slop-context tool_name pr_number:
     uv run --project {{infra}} automated-reviews fetch-slop-context \
