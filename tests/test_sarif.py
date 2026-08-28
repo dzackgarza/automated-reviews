@@ -154,7 +154,7 @@ def test_build_sarif_defaults_reviewer_identity_to_the_ci_agent(checkout: Path) 
         "agent": "opencode-ai",
         "prompt_id": "reviews/slop",
         "prompt_version": "1.0.0",
-        "model": "opencode-go/ox-alpha-free",
+        "model": "opencode/nemotron-3-ultra-free",
     }
 
 

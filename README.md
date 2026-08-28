@@ -33,7 +33,7 @@ Verify the installation:
 
 ```console
 $ uv run automated-reviews active-model
-opencode-go/ox-alpha-free
+opencode/nemotron-3-ultra-free
 ```
 
 Run `uv run automated-reviews --help` for the complete command list.
@@ -52,7 +52,7 @@ Replay the case with the active model:
 ```bash
 uv run automated-reviews replay \
   cases/sage-categories-pr3-run32660872242 \
-  opencode-go/ox-alpha-free
+  opencode/nemotron-3-ultra-free
 ```
 
 The first replay builds the pinned runner image.
@@ -60,7 +60,7 @@ Later replays use the cached image.
 The command streams the model session and ends with an artifact path:
 
 ```text
-Replay artifacts: .git/automated-reviews/artifacts/sage-categories-pr3-run32660872242/opencode-go--ox-alpha-free/<run-id>
+Replay artifacts: .git/automated-reviews/artifacts/sage-categories-pr3-run32660872242/opencode--nemotron-3-ultra-free/<run-id>
 ```
 
 The artifact directory contains the model prompt, submitted candidates, validation feedback, OpenCode state, and logs.

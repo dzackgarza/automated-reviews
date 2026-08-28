@@ -16,7 +16,7 @@ def test_active_model_controls_opencode_invocation() -> None:
         model=metadata.model,
     )
 
-    assert metadata.model == "opencode-go/ox-alpha-free"
+    assert metadata.model == "opencode/nemotron-3-ultra-free"
     assert opencode_command(config, 1) == [
         "/usr/local/bin/opencode",
         "run",
