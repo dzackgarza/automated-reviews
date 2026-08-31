@@ -11,13 +11,13 @@ Style cards elaborate recurring bad shapes, rearchitecture, and proof burdens, b
 Select the language profile before applying a card.
 The card owns the invariant and proof obligation; the profile owns the concrete construction and migration shape.
 
-- [[style-guide/style-guide-python/SKILL|Python]] — Pydantic/dataclasses, enums, typed outcomes, and real Python boundaries.
+- [[style-guide/style-guide-python/style-guide-python|Python]] — Pydantic/dataclasses, enums, typed outcomes, and real Python boundaries.
 
-- [[style-guide/style-guide-typescript/SKILL|TypeScript and Bun]] — Zod, discriminated unions, typed outcomes, and real TypeScript/Bun boundaries.
+- [[style-guide/style-guide-typescript/style-guide-typescript|TypeScript and Bun]] — Zod, discriminated unions, typed outcomes, and real TypeScript/Bun boundaries.
 
-- [[style-guide/style-guide-bash/SKILL|Bash]] — explicit inputs, command boundaries, `case` modes, and observable command proof.
+- [[style-guide/style-guide-bash/style-guide-bash|Bash]] — explicit inputs, command boundaries, `case` modes, and observable command proof.
 
-- [[style-guide/style-guide-sage/SKILL|SageMath]] — routing stub pending observed Sage-specific repairs.
+- [[style-guide/style-guide-sage/style-guide-sage|SageMath]] — routing stub pending observed Sage-specific repairs.
 
 ## Remediation Routes
 

@@ -1,19 +1,19 @@
 ---
 name: style-guide
-description: Load before implementing or refactoring code that reaches a governed pattern family. Routes by language and concern to the canonical preferred construction, bad-pattern examples, rearchitecture, and proof obligations.
+description: Language style guides, preferred patterns, and bad-pattern remediation.
 ---
 
 # Implementation Style Guide
 
 Start by selecting the implementation language, then load only the relevant foundation card from the [[style-guide/references/style-guide-index|style-guide index]].
 
-- [[style-guide/style-guide-python/SKILL|Python]]
+- [[style-guide/style-guide-python/style-guide-python|Python]]
 
-- [[style-guide/style-guide-typescript/SKILL|TypeScript and Bun]]
+- [[style-guide/style-guide-typescript/style-guide-typescript|TypeScript and Bun]]
 
-- [[style-guide/style-guide-bash/SKILL|Bash]]
+- [[style-guide/style-guide-bash/style-guide-bash|Bash]]
 
-- [[style-guide/style-guide-sage/SKILL|SageMath stub]]
+- [[style-guide/style-guide-sage/style-guide-sage|SageMath stub]]
 
 Each card is canonical for both paths:
 

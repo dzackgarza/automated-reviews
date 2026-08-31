@@ -1,8 +1,6 @@
 ---
 name: bespoke-software-policy
-description: |
-  Load as a mandatory filter before ANY code review or sweep analysis.
-  Applies the project's bespoke-software rules to every finding before reporting.
+description: Enforce bespoke-software rules against hand-rolled code.
 ---
 
 # Bespoke Software Policy

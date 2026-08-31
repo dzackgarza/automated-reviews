@@ -1,14 +1,7 @@
 ---
 name: anti-slop
-description: |
-  Architectural adversarial analysis skill for reviewing code, tests, and documentation
-  produced by LLMs. Detects structural technical debt, dependency inversion failures,
-  bespoke reinvention of standard patterns, dead control flow, and myopic patching that
-  hacks compilers/linters/tests into compliance. Use when asked to review, audit, or
-  analyze code quality — especially LLM-generated code. This is an ANALYSIS skill; it
-  does NOT prescribe destructive actions. Also use for runtime defaults, fallbacks,
-  mocks/fakes/stubs, smoke/proof laundering, deletion laundering, quarantine language,
-  helper-level proof, and bridge-burning policy violations.
+description: Adversarial review for generated-code residue, shallow wrappers, and
+  dead code.
 ---
 
 # Anti-Slop Skill

@@ -171,7 +171,7 @@ This agent must follow these standards:
 
 - **agent-orchestration** — Standard for multi-agent coordination.
 
-- [[code-patterns/legacy/clean-code/SKILL|clean-code]] — Standard for test readability and maintenance.
+- [[code-patterns/legacy/clean-code/clean-code|clean-code]] — Standard for test readability and maintenance.
 
 * * *
 

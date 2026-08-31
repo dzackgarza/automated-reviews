@@ -1,6 +1,6 @@
 ---
 name: reviewing-llm-code
-description: Use when reviewing code, tests, QC, or documentation produced by an LLM or coding agent, especially when the user asks for bad patterns, low-quality code, shallow work, review of Deepseek/Codex/Claude/Jules output, or why an agent-produced change is untrustworthy. Also use when auditing bridge-burning red flags, validation-evasion constructs, runtime defaults, fallbacks, mocks, skips, bypasses, or proof-laundering in LLM-produced code.
+description: Review LLM-generated code, tests, and documentation for quality patterns.
 ---
 
 # Reviewing LLM Code
