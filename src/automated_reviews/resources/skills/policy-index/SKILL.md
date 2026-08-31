@@ -1,6 +1,9 @@
 ---
 name: policy-index
-description: Registry of architectural policies, rules, and bridge-burning invariants.
+description: Use before code review, slop review, PR feedback triage, testing, QC
+  changes, or remediation when deciding which global policy rule owns the obligation.
+  Central source of truth for bridge-burning policy identity, red-flag catalogs, proof/test
+  rules, QC authority, and slop remediation routing.
 ---
 
 # Policy Index

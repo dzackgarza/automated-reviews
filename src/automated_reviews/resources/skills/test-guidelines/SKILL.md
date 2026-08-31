@@ -1,6 +1,6 @@
 ---
 name: test-guidelines
-description: 'Use any and every time you interact with a test file, period.'
+description: Use any and every time you interact with a test file, period.
 ---
 
 For PR-scoped test or QC work, follow the [Git integration workflow](../git-integration-workflow/SKILL.md) for the PR lifecycle and returned review/check feedback.

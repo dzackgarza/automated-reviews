@@ -1,6 +1,8 @@
 ---
 name: style-guide
-description: Language style guides, preferred patterns, and bad-pattern remediation.
+description: Load before implementing or refactoring code that reaches a governed
+  pattern family. Routes by language and concern to the canonical preferred construction,
+  bad-pattern examples, rearchitecture, and proof obligations.
 ---
 
 # Implementation Style Guide
