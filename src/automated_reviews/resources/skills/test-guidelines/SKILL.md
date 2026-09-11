@@ -139,6 +139,13 @@ A test is usually trivial if it mainly shows that:
 
 These may be true statements, but they usually do not prove repository-owned functionality.
 
+A test is worse than trivial when its scenario could not occur. Asserting how a
+dictionary behaves when indexed by `...`, or covering any input shape no caller in the
+language would ever construct, spends maintenance on a situation that does not exist and
+proves nothing about a situation that does. Before writing a case, name the caller that
+produces it. If the honest answer is that no practitioner writes that, delete the case —
+the interesting inputs are the ones real callers pass.
+
 * * *
 
 ## Operating Rules (Hard Constraints)
