@@ -1,11 +1,6 @@
 ---
 name: reviewing-llm-code
-description: Use when reviewing code, tests, QC, or documentation produced by an LLM
-  or coding agent, especially when the user asks for bad patterns, low-quality code,
-  shallow work, review of Deepseek/Codex/Claude/Jules output, or why an agent-produced
-  change is untrustworthy. Also use when auditing bridge-burning red flags, validation-evasion
-  constructs, runtime defaults, fallbacks, mocks, skips, bypasses, or proof-laundering
-  in LLM-produced code.
+description: "Use when reviewing code, tests, QC, or docs written by an LLM or coding agent for validation evasion, fallbacks, mocks, or proof laundering."
 ---
 
 # Reviewing LLM Code
@@ -129,10 +124,6 @@ Before producing review findings, load these skills in this order:
 
 - **`llm-failure-modes/references/behavioral-detection-methodology.md`** — How to detect behavioral failures without turning observations into interaction-specific narratives.
 
-- **[[addressing-shallow-work/SKILL|addressing-shallow-work]]** — How to avoid adding structure instead of fixing the actual problem.
-
-- **[[reviewing-subagent-work/SKILL|reviewing-subagent-work]]** — The Synthesis Gate for verifying subagent output.
-
 Also load as applicable:
 
 - [[test-guidelines/SKILL|test-guidelines]] when the review includes tests, QC, smoke checks, CI, or proof surfaces.
@@ -144,8 +135,6 @@ Also load as applicable:
   - [[reviewing-llm-code/SKILL|reviewing-llm-code]]
 
   - [[anti-slop/SKILL|anti-slop]]
-
-  - [[reviewing-subagent-work/SKILL|reviewing-subagent-work]]
 
   - [[test-guidelines/SKILL|test-guidelines]] if tests/QC/proof surfaces are in scope
 

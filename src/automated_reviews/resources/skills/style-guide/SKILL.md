@@ -1,8 +1,6 @@
 ---
 name: style-guide
-description: Load before implementing or refactoring code that reaches a governed
-  pattern family. Routes by language and concern to the canonical preferred construction,
-  bad-pattern examples, rearchitecture, and proof obligations.
+description: "Use before implementing or refactoring code in a governed pattern family. Routes by language to the preferred construction."
 ---
 
 # Implementation Style Guide

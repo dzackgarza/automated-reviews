@@ -1,6 +1,6 @@
 ---
 name: test-guidelines
-description: Use any and every time you interact with a test file, period.
+description: "Use whenever you read, write, or edit a test file."
 ---
 
 For PR-scoped test or QC work, follow the [Git integration workflow](../git-integration-workflow/SKILL.md) for the PR lifecycle and returned review/check feedback.
@@ -139,12 +139,10 @@ A test is usually trivial if it mainly shows that:
 
 These may be true statements, but they usually do not prove repository-owned functionality.
 
-A test is worse than trivial when its scenario could not occur. Asserting how a
-dictionary behaves when indexed by `...`, or covering any input shape no caller in the
-language would ever construct, spends maintenance on a situation that does not exist and
-proves nothing about a situation that does. Before writing a case, name the caller that
-produces it. If the honest answer is that no practitioner writes that, delete the case —
-the interesting inputs are the ones real callers pass.
+A test is worse than trivial when its scenario could not occur.
+Asserting how a dictionary behaves when indexed by `...`, or covering any input shape no caller in the language would ever construct, spends maintenance on a situation that does not exist and proves nothing about a situation that does.
+Before writing a case, name the caller that produces it.
+If the honest answer is that no practitioner writes that, delete the case — the interesting inputs are the ones real callers pass.
 
 * * *
 
@@ -156,7 +154,7 @@ the interesting inputs are the ones real callers pass.
    For external tool/API/compiler unknowns, load [[known-solution-first/SKILL|known-solution-first]] and search public contracts first.
    Do not force a rigid parallel tool-call pattern — use the appropriate model for the uncertainty type.
 
-3. **REQUIRED: Reference Skills** — Strictly follow [[prompt-engineering/SKILL|prompt-engineering]], `agent-orchestration`, and the guidelines below.
+3. **REQUIRED: Reference Skills** — Strictly follow the guidelines below.
 
 4. **No Masking** — All tests must reflect actual runtime state (no `xfail`, no `ignore`), with one sanctioned exception: an open-issue red proof gate marked `xfail(reason="... #<open-issue> ...", strict=True)` (see `POLICY.NO_SKIP_MASK`).
 
@@ -173,8 +171,6 @@ You are a **Verification Architect & Auditor**. You engineer tests that act as p
 ### Reference Skills
 
 This agent must follow these standards:
-
-- [[prompt-engineering/SKILL|prompt-engineering]] — Standard for prompt architecture and rule-based behavior.
 
 - **agent-orchestration** — Standard for multi-agent coordination.
 
@@ -985,10 +981,4 @@ For example, an exception allowing a fallback provider is only allowed if the pr
 - [[anti-slop/SKILL|anti-slop]] → Load alongside when tests show generated-code residue: tautological assertions, mock-first evasion, content-free verification, or test-cheat escalation.
   Provides the Dependency Inversion Rule and structural analysis frame for evaluating whether tests prove real behavior or merely hack the proof loop.
 
-- [[reviewing-subagent-work/SKILL|reviewing-subagent-work]] → Load alongside when reviewing tests produced by a subagent.
-  Provides the Synthesis Gate for verifying that tests actually prove correctness rather than just existing.
-
 - [[thermo-nuclear-code-quality-review/SKILL|thermo-nuclear-code-quality-review]] → Load alongside when test code itself has maintainability problems: giant test files, spaghetti condition growth, duplicated setup logic, or abstraction inflation in test utilities.
-
-- [[addressing-shallow-work/SKILL|addressing-shallow-work]] → Load alongside when test output is shallow, superficial, or box-checking.
-  Provides structural-scrutiny patterns for detecting tests that satisfy coverage metrics without proving real behavior.

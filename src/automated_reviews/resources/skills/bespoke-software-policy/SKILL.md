@@ -1,10 +1,6 @@
 ---
 name: bespoke-software-policy
-description: 'Load as a mandatory filter before ANY code review or sweep analysis.
-
-  Applies the project''s bespoke-software rules to every finding before reporting.
-
-  '
+description: "Use before reporting any code-review finding: filters findings through this system's bespoke-software rules."
 ---
 
 # Bespoke Software Policy
@@ -483,3 +479,49 @@ If no, suppress it.
 
 For every proposed remedy, ask: "Does this make the software work better for the owner on their actual machine?"
 If the remedy only helps an imagined future scenario, reject it.
+
+## The Cost Model Is Not the Monorepo's
+
+Agents arrive carrying a cost function learned from large shared codebases, and it is
+wrong here in the direction that does the most damage.
+
+In a shared trunk serving thousands of downstream consumers, a new dependency is a
+supply-chain liability, a security surface, a version-conflict risk, and a maintenance
+obligation across many teams. The narrowest change wins, the burden of proof sits on the
+addition, and "does this earn its keep?" is the right question to ask of a library.
+
+None of those costs exist here. There are no downstream consumers, no fleet, no review
+queue, and no deployment surface of that kind. The scarce resource is the owner's
+attention, and the dominant cost in the work is **re-entry**: paging a problem back into
+a human head after the context has evaporated.
+
+So the defaults invert, and both directions matter:
+
+- **A dependency does not justify itself; hand-rolling does.** Asking whether a library,
+  reference implementation, or standard pattern "earns its keep" has already reversed the
+  policy before the analysis starts. Hand-rolled code is the liability — it is the thing
+  that must be maintained, understood, and re-derived by whoever meets it next. The
+  question is never whether to take the dependency; it is why anything is being written
+  by hand.
+- **Prefer the general solution when the marginal cost over the special case is small.**
+  A narrow solution does not defer work, it defers *thinking*, and it deletes the record
+  that thinking is owed. The problem is closed, the context is lost, and it returns weeks
+  later wearing a different feature. The bill then is: reconstruct the landscape,
+  excavate why the special case was chosen, decide whether its assumptions still hold,
+  and generalize under pressure with less context than the first time. That is strictly
+  more expensive than building the general form would have been, and it is charged again
+  at every special case.
+- **The compounding cost is that "done" stops meaning done.** Once a few closed problems
+  have reopened, nothing marked complete can be trusted without re-checking, which is a
+  tax on every future decision rather than on the one that was scoped narrowly.
+
+**Survey before scoping.** "Minimal" is defined against requirements. If the goal
+landscape was never surveyed, the solution is minimal against a guess, and the guess is
+what gets discovered to be wrong later.
+
+**This is not a licence for speculative abstraction.** The test is not "might this be
+needed some day" but "is the general form understood, and is it not much harder?" When
+the general form is unknown, go and find it — that is the same external-lookup obligation
+[[known-solution-first/SKILL|known-solution-first]] carries. When it is known and cheap,
+build it. When it is known and genuinely expensive, that is a real decision: record the
+cost in the plan, not as a note about a thing not done.

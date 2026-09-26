@@ -64,4 +64,3 @@ Fix once, fixed everywhere.
 
 - **code-patterns/references/classes.md** → Overlaps on DIP and cohesion; deepening vocabulary adds the *leverage* and *locality* dimensions.
 
-- **addressing-shallow-work** → "Shallow work" in that skill's sense maps directly to "shallow modules" in this vocabulary.

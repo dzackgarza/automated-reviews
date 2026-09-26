@@ -105,5 +105,3 @@ Your first idea is unlikely to be the best.
 
 - **code-patterns/references/classes.md** — SRP and DIP overlap with deepening's emphasis on interface concentration.
 
-- **addressing-shallow-work** — The "shallow work" concept maps directly to shallow modules.
-  Deepening vocabulary gives it precise structure.
