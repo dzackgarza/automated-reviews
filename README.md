@@ -14,6 +14,7 @@ It also holds the bridge-burning policy index and a Python parser for it.
 ## Requirements
 
 - [uv](https://docs.astral.sh/uv/)
+
 - [just](https://github.com/casey/just)
 
 The project requires Python 3.14 or later.
