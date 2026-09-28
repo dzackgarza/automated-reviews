@@ -104,10 +104,3 @@ def test_remediation_index_contains_constructions_not_inverse_policy_mapping() -
 
     assert "Policy findings" not in text
     assert "POLICY." not in text
-
-
-def test_review_manifest_references_canonical_skills_policy_index() -> None:
-    manifest = Path("reviews/slop/manifest.txt").read_text()
-    assert "vendor/" not in manifest
-    assert "../skills/policy-index/SKILL.md" in manifest
-    assert "../skills/policy-index/references/policies.md" in manifest

@@ -5,32 +5,18 @@ build-backend = "uv_build"
 [project]
 name = "automated-reviews"
 version = "0.1.0"
-description = "Run slop and repository policy-compliance reviews"
+description = "Canonical review skills and the bridge-burning policy index"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-  "cyclopts>=4.6.1",
-  "playwright>=1.62.0",
   "pydantic>=2.12.5",
-  "sarif-pydantic>=0.6.2",
-  "tomli-w>=1.2.0",
-  "unidiff>=0.7.5",
 ]
-
-[project.scripts]
-automated-reviews = "automated_reviews.cli:app"
 
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
-    "pyyaml>=6.0.3",
-    "types-pyyaml>=6.0.12.20260815",
 ]
 
 [tool.uv.build-backend]
 module-name = "automated_reviews"
 module-root = "src"
-
-[tool.pytest.ini_options]
-addopts = "-m 'not replay'"
-markers = ["replay: run the production slop reviewer in the frozen local runner"]

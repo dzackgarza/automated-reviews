@@ -1,31 +1,14 @@
 # Agent instructions
 
-This repository owns the complete LLM slop-review and policy-compliance review systems.
+This repository owns the canonical review skills and the bridge-burning policy index.
 
-It owns production workflows, prompts, policy inputs, report schemas, the slop-review
-runner, validation, delivery, model selection, and frozen replay.
-`dzackgarza/ai-review-ci` consumes the published workflow contract.
-It remains the owner of deterministic QC, hooks, profiles, and branch protection.
+The skills live under `src/automated_reviews/resources/skills/`.
+The top-level `skills/` directory holds symlinks to them for `just install-skills`.
 
-Preserve the model-visible boundary. A replay must use the frozen target source,
-reviewer context, prompt inputs, tool permissions, paths, and validator behavior.
-Keep adjudication files outside the reviewer filesystem.
-
-Run replays through the targeted pytest surface and a local disposable Docker runner.
-Do not move replay execution to GitHub Actions or another remote service.
-
-Do not add evaluation wording to model-visible files or prompts. The reviewer
-must see the same CI role and repository state that production supplies.
-
-Use one case manifest as the source of replay identity. Store bespoke
-configuration in TOML. Validate it with the package Pydantic models.
-
-`src/automated_reviews/data/reviewer.toml` selects the production model.
-Production slop-review commands must read this file. Do not copy the model identifier
-into workflows, prompts, OpenCode configuration, or runner scripts.
-
-Publish downstream workflows from `src/automated_reviews/templates/`.
-The reusable workflows under `.github/workflows/` execute the same tracked
-runtime used by replay.
+`skills/policy-index/references/policies.md` owns every `POLICY.*` record.
+`skills/style-guide/references/style-guide-index.md` owns every `REMEDIATE.*` construction.
+`src/automated_reviews/policy_index.py` parses both files and resolves each policy to its remediation.
+`dzackgarza/ai-review-ci` imports that module for its deterministic detectors.
+Other repositories link to the policy documents by their path on `main`, so a move or rename breaks those links.
 
 Use the top-level `justfile` as the project interface.
