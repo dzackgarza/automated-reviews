@@ -34,10 +34,8 @@ The question is:
 
 ## Mathematical code
 
-In a repository that implements mathematics, every test is a true assertion about the
-mathematics, made at the owner of the operation, with an oracle that is a theorem, an
-independent computation or a published example. Never write an "integration test" for
-such code, and never accept it by how a consumer, port or migration calls it.
+In a repository that implements mathematics, every test is a true assertion about the mathematics, made at the owner of the operation, with an oracle that is a theorem, an independent computation or a published example.
+Never write an "integration test" for such code, and never accept it by how a consumer, port or migration calls it.
 
 * * *
 
