@@ -104,4 +104,3 @@ Your first idea is unlikely to be the best.
   Uses this vocabulary for pass-through wrappers and "code judo" moves.
 
 - **code-patterns/references/classes.md** — SRP and DIP overlap with deepening's emphasis on interface concentration.
-

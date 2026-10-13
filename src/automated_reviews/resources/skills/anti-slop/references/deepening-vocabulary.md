@@ -63,4 +63,3 @@ Fix once, fixed everywhere.
 - **thermo-nuclear-code-quality-review** → Uses this vocabulary when identifying pass-through wrappers and missed deepening opportunities.
 
 - **code-patterns/references/classes.md** → Overlaps on DIP and cohesion; deepening vocabulary adds the *leverage* and *locality* dimensions.
-
