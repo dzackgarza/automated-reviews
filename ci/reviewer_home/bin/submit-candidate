@@ -1,5 +1,0 @@
-#!/bin/sh
-set -eu
-
-exec sudo -n --preserve-env=REPORT_TYPE,REVIEWER_REPO,CONTROL_REPO,POLICY_DOCUMENT \
-  /opt/automated-reviews/private/ci/private/submit-candidate "$@"

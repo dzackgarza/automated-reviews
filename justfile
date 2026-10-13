@@ -26,18 +26,6 @@ test-push:
 test-ci:
     @just -f ~/ai-review-ci/justfiles/python.just -d . test-ci
 
-# Run one frozen slop review through the local replay test.
-replay case model:
-    uv run pytest -m replay tests/test_replay.py --replay-model {{ model }} -vv -s
-
-# Publish downstream slop-review workflows into a repository.
-publish-slop-workflows profile target="." review_ref="main" qc_ref="main":
-    uv run automated-reviews publish-slop-workflows {{ target }} --profile {{ profile }} --review-ref {{ review_ref }} --qc-ref {{ qc_ref }}
-
-# Publish a CONTRIBUTING.md policy-compliance workflow into a repository.
-publish-policy-compliance-workflow target="." review_ref="main":
-    uv run automated-reviews publish-policy-compliance-workflow {{ target }} --review-ref {{ review_ref }}
-
 # Link the review-facing skills into the configured skill vault.
 install-skills:
     #!/usr/bin/env bash
