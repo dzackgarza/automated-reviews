@@ -44,3 +44,7 @@ install-skills:
         fi
         ln -snf "$skill" "$target"
     done
+
+# Run the scheduled whole-tree audit (semgrep and debt scans) through the central implementation.
+ambient:
+    @just -f ~/ai-review-ci/justfiles/python.just -d . ambient
