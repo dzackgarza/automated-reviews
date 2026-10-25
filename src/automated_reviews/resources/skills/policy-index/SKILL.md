@@ -55,7 +55,7 @@ Implementation details invite source disposition based on tooling limits instead
 | `references/runtime-control-flow.md` | Reviewers, disposition agents, and fixers after code assignment | Runtime branch admission rules, banned branch shapes, ADDD assertion style, and examples. |
 | `references/error-handling-as-control-flow.md` | Reviewers, disposition agents, test writers, and coding-style authors | Canonical rationale for banning exception-driven ordinary control flow and guess-check-retry state probing. |
 | `references/test-proof-rules.md` | Test writers, test reviewers, and disposition agents | Banned test/assertion shapes and proof-admission rules. |
-| [[style-guide/references/style-guide-index\|style-guide index]] | Before implementation and during repair | Canonical preferred constructions, bad patterns, rearchitecture, and proof obligations. |
+| [[style-guide/references/style-guide-index]] | Before implementation and during repair | Canonical preferred constructions, bad patterns, rearchitecture, and proof obligations. |
 
 ## Policy Categories
 
@@ -108,20 +108,20 @@ A policy exception requires all of:
 | Why is exception-driven ordinary control flow banned, and what explicit models does it displace? | `references/error-handling-as-control-flow.md` and `POLICY.NO_EXCEPTION_CONTROL_FLOW`. |
 | What is the coding style for assertions and invariant failures? | `references/runtime-control-flow.md#addd-assert-dump-data-direct`. |
 | What test assertion patterns are banned? | `references/test-proof-rules.md`. |
-| What codenamed remediation applies? | Follow the policy record's exact `Related remediation` code into [[style-guide/references/style-guide-index\|style-guide index]]. |
+| What codenamed remediation applies? | Follow the policy record's exact `Related remediation` code into [[style-guide/references/style-guide-index]]. |
 | What policy applies to creating files dynamically from code? | `POLICY.NO_DYNAMIC_ARTIFACTS` in `references/policies.md`. |
 | What policy applies to embedding large strings/prompts/messages inline in code? | `POLICY.NO_DYNAMIC_ARTIFACTS` in `references/policies.md`. |
 | What policy applies to embedding one language inside another? | `POLICY.NO_DYNAMIC_ARTIFACTS` in `references/policies.md`. |
 | What policy applies to mypy `import-untyped`, missing stubs, or missing `py.typed`? | `POLICY.NO_UNTYPED_IMPORT_LEAK`; follow that record's canonical remediation route rather than changing dependencies. |
 | What policy applies to token-local fixes that preserve the architectural failure process? | `POLICY.NO_MYOPIC_PATCHING` in `references/policies.md`. |
 | What policy applies to `if`/`else`/`elif` chains or non-exhaustive `match`/`switch`? | `POLICY.NO_IF_ELSE` in `references/policies.md`; red flags in `references/red-flags.md` (`IF-ELSE-CHAIN`, `ELIF-LADDER`, `MATCH-WITH-DEFAULT-FALLBACK`, `CATCH-ALL-RETURN-DEFAULT`, `MIXED-IF-AND-MATCH`, `IF-FOR-INVARIANT-SHOULD-BE-ASSERT`); follow that record's canonical remediation route. |
-| What policy applies to adding compliance, provenance, governance, certification, or release-identity machinery disproportionate to the project? | `POLICY.NO_COMPLIANCE_MAXIMALISM` in `references/policies.md` — the Anti-Speculation doing-time rule that prevents the failure catalogued in [[llm-failure-modes/coding-failures\|llm-failure-modes #25]]. Follow that record's canonical remediation route. |
-| How do I review LLM-produced code? | [[reviewing-llm-code/SKILL\|reviewing-llm-code]]. |
-| How do I fix slop without laundering? | [[fixing-slop/SKILL\|fixing-slop]] plus [[style-guide/references/style-guide-index\|style-guide index]]. |
-| What makes a test valid proof? | [[test-guidelines/SKILL\|test-guidelines]] plus `references/test-proof-rules.md`. |
-| Who owns QC invocation/config/tooling? | `POLICY.GLOBAL_QC_AUTHORITY`; operational QC invocation remains in the global [[quality-control/SKILL\|quality-control]] skill. |
-| How do I triage PR feedback? | [[pr-feedback-triage/SKILL\|pr-feedback-triage]]. |
+| What policy applies to adding compliance, provenance, governance, certification, or release-identity machinery disproportionate to the project? | `POLICY.NO_COMPLIANCE_MAXIMALISM` in `references/policies.md` — the Anti-Speculation doing-time rule that prevents the failure catalogued in [[llm-failure-modes/coding-failures]] (failure mode #25). Follow that record's canonical remediation route. |
+| How do I review LLM-produced code? | [[reviewing-llm-code/SKILL]]. |
+| How do I fix slop without laundering? | [[fixing-slop/SKILL]] plus [[style-guide/references/style-guide-index]]. |
+| What makes a test valid proof? | [[test-guidelines/SKILL]] plus `references/test-proof-rules.md`. |
+| Who owns QC invocation/config/tooling? | `POLICY.GLOBAL_QC_AUTHORITY`; operational QC invocation remains in the global [[quality-control/SKILL]] skill. |
+| How do I triage PR feedback? | [[pr-feedback-triage/SKILL]]. |
 | A reviewer asserts an external library's convention/namespace/API ("the standard is X")? | `POLICY.NO_UNVERIFIED_CONVENTION_CLAIMS` in `references/policies.md` — verify once against the pinned checkout; stale ⇒ reject wholesale with file:line evidence. |
-| How do I debug without prior-shaped probing? | [[reality-grounded-debugging/SKILL\|reality-grounded-debugging]] plus [[systematic-debugging/SKILL\|systematic-debugging]]. |
-| How do I handle external tool/library/compiler uncertainty? | [[known-solution-first/SKILL\|known-solution-first]]. |
-| How do I provision tools? | [[tool-provisioning-and-environment-hygiene/SKILL\|tool-provisioning-and-environment-hygiene]]. |
+| How do I debug without prior-shaped probing? | [[reality-grounded-debugging/SKILL]] plus [[systematic-debugging/SKILL]]. |
+| How do I handle external tool/library/compiler uncertainty? | [[known-solution-first/SKILL]]. |
+| How do I provision tools? | [[tool-provisioning-and-environment-hygiene/SKILL]]. |
