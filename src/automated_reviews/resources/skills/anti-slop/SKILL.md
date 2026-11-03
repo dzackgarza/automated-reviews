@@ -5,6 +5,22 @@ description: "Use when reviewing LLM-written code, tests, or docs for structural
 
 # Anti-Slop Skill
 
+## Prose review route
+
+When the target is prose, load
+[[llm-failure-modes/scholarly-prose|scholarly prose patterns (PROSE)]] before identifying
+editorial findings. That catalog governs prose review; the code-audit criteria below
+apply to code. In a mixed document, assess each part under its applicable criteria.
+Require a passage, its concrete redundancy or unsupported implication, and a correction
+that preserves meaning. For repeated patterns, cite representative occurrences.
+Do not infer AI authorship from vocabulary, punctuation, or polished symmetry.
+
+For manuscript revisions also load
+[[research-writing/revision/revision|scholarly paper revision]]. Preserve audience,
+genre, notation, qualifications, and useful rhetorical constructions. Do not impose
+code refactoring or regression-test workflows on an editorial change. Separate an
+unproved mathematical assertion from a stylistic defect.
+
 ## What This Skill Is
 
 This skill forces a frame of **ARCHITECTURAL analysis and adversarial CODE QUALITY auditing**.

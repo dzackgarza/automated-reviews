@@ -5,6 +5,22 @@ description: "Use when reviewing code, tests, QC, or docs written by an LLM or c
 
 # Reviewing LLM Code
 
+## Reviewing prose
+
+For prose within the requested review, use
+[[llm-failure-modes/scholarly-prose|scholarly prose patterns (PROSE)]] and its evidence
+rule. Apply the code-focused audit below to code, not to manuscript style. Identify
+the passage, pattern, effect on the argument, and a meaning-preserving correction.
+Check surrounding text and the intended audience before calling a contrast, heading,
+metaphor, or recap defective. Repetition needs representative examples; unsupported
+claims need comparison with the cited evidence. Stylistic signals do not prove AI
+authorship, and editorial revisions do not require code regression tests.
+
+For existing scholarly work, load
+[[research-writing/revision/revision|scholarly paper revision]] to check scope, source
+integration, notation, macros, and the final LaTeX build. Report mathematical gaps
+separately from editorial findings and preserve useful authorial choices.
+
 Before reviewing, testing, or triaging code, consult the central policy index to locate the canonical source-of-truth skill: [[policy-index/SKILL|policy-index]]
 
 Review LLM-produced code as an agent-failure audit, not as a normal bug list.
