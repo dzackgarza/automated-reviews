@@ -26,8 +26,9 @@ Check all of these before the first edit.
 If one fails, stop and fix that condition first.
 
 - The working tree is clean.
-- The full test suite of the batch is green on unchanged code.
+- The full test suite of the batch is green on unchanged code, on every run.
   A red baseline blocks the batch: fix the failing test or the product defect first, in its own commit.
+  A flaky test blocks the batch until its own batch replaces it (see [Flaky tests](#flaky-tests)).
 - The mutation tool of the repository runs on the production code that the batch reaches.
 - Production code does not change until the batch commit lands.
   The mutation gate compares mutants by name, and a production edit changes the names.
@@ -47,6 +48,7 @@ A candidate is a test that one of these sources names:
 - An assertion on a value that the test itself supplied.
 - A test that a Mode B audit classified as redundant, dependency-owned, type-system/internal-consistency, or private trivia.
 - A test that asserts through a mock, stub, fake, or spy (`POLICY.NO_MOCK_PROOF`).
+- A flaky test: it passes and fails on unchanged code (see [Flaky tests](#flaky-tests)).
 - A test that the user names.
 
 Judge a test by its assertions, not its name.
@@ -196,16 +198,27 @@ Then delete the scratch files.
 ## Flaky tests
 
 A flaky test passes and fails on unchanged code.
+Its pass does not exclude a broken implementation, so it proves nothing.
+It is CF, and the decision table replaces it: row 1 with a deterministic test of the same contract, row 3 deletion, or row 5.
 Do not skip or quarantine it (`POLICY.NO_SKIP_MASK`).
 A strict `xfail` does not fit either: a pass turns into a strict XPASS failure, so the suite still flakes.
 
-- A test that fails the same way on every run is not flaky.
-  It shows a product defect or a wrong test.
-  Follow the bug procedure: reproduce, write the red test, then fix.
-- A flaky test shows a nondeterminism defect.
-  Reproduce it: run it repeatedly, in random order, and alone.
-  Find the cause: shared state, time, ordering, network, or concurrency.
-  Fix the cause in its own commit, before the cleanup batch, so that the baseline is green.
+Its failures are still evidence of nondeterminism, in the test or in the product.
+Before you replace it, find where the nondeterminism lives:
+
+- In the test (shared state, wall-clock time, test order, live network, unseeded randomness): replace the test.
+  The replacement fixes the input that varied.
+- In the product (a race, an order dependence, an unseeded choice): this is a product defect.
+  Follow the bug procedure.
+  The red test controls the varying input (scheduling, clock, seed) so that it fails on every run.
+  The flaky test is never that regression test.
+
+A test that fails the same way on every run is not flaky.
+It shows a product defect or a wrong test, and the bug procedure applies.
+
+A flaky test makes the mutation records unstable: its kills change from run to run, so a replay reports false lost kills.
+Replace flaky tests in their own batch, before the other candidates.
+Treat each replacement in that batch as gate-blind, and prove by hand that it can fail.
 
 ## Traps
 
