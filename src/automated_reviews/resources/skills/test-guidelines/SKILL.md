@@ -459,6 +459,10 @@ When reviewing a suite, classify each test:
 
 **Keep 1 and 2. Scrutinize 3. Delete or avoid 4–6 unless there is a concrete repository-owned reason they matter.**
 
+A classification does not license an edit.
+To rewrite, merge, or delete existing tests, follow [Test cleanup](references/test-cleanup.md).
+It maps these classes to a first-match decision table, takes the decisions in a fresh context, and blocks the batch when a mutation replay loses a kill.
+
 * * *
 
 ## When to Add a Test
@@ -754,6 +758,10 @@ Invalid deletion:
 
 A deleted fake proof must be paired with proof replacement, proof invalidation, or explicit proof debt.
 
+"No caller found" is not proof that a claim is not repository-owned.
+Dependency injection, reflection, plugin registries, entry points, string-dispatched commands, and HTTP routes do not show in a search.
+A valid deletion states the positive reason, with evidence: the owner elsewhere, the trivial subject, or the named keeper test and its assertion.
+
 ## Helper-Branch Proof Laundering
 
 When review feedback concerns a product boundary, agents often extract a tiny helper and test that helper’s branches instead of testing the original boundary.
@@ -837,6 +845,7 @@ The following checks are **mandatory** across those gates (all owned by global Q
 6. **Duplication/complexity does not exceed ceiling**: Use `jscpd`, `lizard`. LLMs often solve tasks by cloning logic and growing branch-heavy code.
 
 7. **Mutation testing**: Use `mutmut`. This catches the case where tests touch the code but would not fail if behavior changed.
+   mutmut keeps per-mutant results in `mutants/` and reuses them after a test edit; delete that directory before a run that must reflect edited tests.
 
 8. **Architecture rules pass**: Use `import-linter`. This blocks “fixes” that work only by violating module boundaries.
 
@@ -859,6 +868,8 @@ Depending on the invocation, you must either:
 - **Mode A (Write)**: Produce a test file that provides a substantive, verifiable proof of correctness for an implementation.
 
 - **Mode B (Review)**: Audit existing tests against the High-Quality Testing Standards and report specific violations or weaknesses.
+
+- **Mode C (Cleanup)**: Rewrite, merge, or delete low-value existing tests. Follow [Test cleanup](references/test-cleanup.md).
 
 ## Process
 
