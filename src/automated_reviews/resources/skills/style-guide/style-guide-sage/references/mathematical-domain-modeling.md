@@ -230,6 +230,15 @@ Every new general abstraction SHOULD have a non-target example: `\mathbf A^1\hoo
 
 Tests must include category membership, parent--element ownership, identity/associativity laws for morphisms, construction laws, action laws, functoriality, native-output types, backend opacity, and an unrelated generality example.
 
+Assertions MUST test the mathematical equality or equivalence promised by the public operation, not an incidental enumeration or private canonical key.
+
+- If only membership matters, compare the underlying sets using the mathematical equality of their elements.
+- If occurrences or multiplicities matter, compare multisets. Equality of sorted finite lists is a valid multiset comparison when the elements have a common total order consistent with equality; it is already invariant under permutations. Do not require an arbitrary ordering of mathematical objects merely to compare them.
+- If a collection promises unique representatives, check both equality of the underlying sets and absence of duplicate occurrences under the promised equality or equivalence. Set equality alone cannot prove uniqueness.
+- Compare sequences as sequences only when their order, indexed positions, or normal form is part of the mathematical claim or documented public contract.
+
+Tests and examples MUST be invariant under changes to non-contractual enumeration and sorting algorithms, while still detecting missing elements, wrong multiplicities, or duplicate representatives whenever the contract excludes them.
+
 The primary external evidence is a literature oracle: full poset isomorphism, complete incidence relation, published action, quotient description, clutching source, dimension/homology theorem, or complete classification.
 Counts and rank vectors are diagnostics, not sufficient proof.
 
